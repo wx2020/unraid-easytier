@@ -1,0 +1,119 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN>
+
+<PLUGIN
+  name="easytier"
+  author="EasyTier Community"
+  version="2026.02.22.0001"
+  launch="Settings/EasyTier"
+  pluginURL="https://raw.githubusercontent.com/yourusername/unraid-easytier/main/plugin/easytier.plg"
+  support="https://github.com/EasyTier/EasyTier"
+  min="7.0.0"
+>
+
+<CHANGES>
+<![CDATA[
+
+### 2026.02.22.0001
+
+### 🎉 Initial Release
+
+- Initial release of EasyTier plugin for Unraid
+- Support for EasyTier networking
+- Web UI for configuration
+- Automatic interface registration
+
+]]>
+</CHANGES>
+
+<!--
+EasyTier binary package
+Note: Update the URL and SHA256 for each release
+-->
+<FILE Name="/boot/config/plugins/easytier/easytier-v0.0.0-linux-x86_64.tar.gz">
+<URL>https://github.com/EasyTier/EasyTier/releases/download/v0.0.0/easytier-linux-x86_64.tar.gz</URL>
+<SHA256>PLACEHOLDER_SHA256</SHA256>
+</FILE>
+
+<!--
+EasyTier utils package
+Note: Update the URL and SHA256 for each release
+-->
+<FILE Name="/boot/config/plugins/easytier/unraid-easytier-utils-2026.02.22.0001-noarch-1.txz">
+<URL>https://github.com/yourusername/unraid-easytier/releases/download/2026.02.22.0001/unraid-easytier-utils-2026.02.22.0001-noarch-1.txz</URL>
+<SHA256>PLACEHOLDER_SHA256</SHA256>
+</FILE>
+
+<!--
+The 'install' script.
+-->
+<FILE Run="/bin/bash">
+<INLINE>
+<![CDATA[
+if [ -d "/usr/local/emhttp/plugins/easytier" ]; then
+    rm -rf /usr/local/emhttp/plugins/easytier
+fi
+
+# Remove old symlink if it exists
+if [ -L "/etc/rc.d/rc.easytier" ]; then
+    rm -f /etc/rc.d/rc.easytier
+fi
+
+# Install utils package
+upgradepkg --install-new /boot/config/plugins/easytier/unraid-easytier-utils-2026.02.22.0001-noarch-1.txz
+
+# Extract EasyTier binary
+mkdir -p /usr/local/emhttp/plugins/easytier/bin
+tar xzf /boot/config/plugins/easytier/easytier-v0.0.0-linux-x86_64.tar.gz -C /usr/local/emhttp/plugins/easytier/bin
+
+# Create symlinks for easy access
+ln -sf /usr/local/emhttp/plugins/easytier/bin/easytier-core /usr/local/sbin/easytier-core
+ln -sf /usr/local/emhttp/plugins/easytier/bin/easytier-cli /usr/local/sbin/easytier-cli
+
+# Create state directory
+mkdir -p /boot/config/plugins/easytier/state
+
+# Start EasyTier service
+/usr/local/emhttp/plugins/easytier/restart.sh
+
+# Bash completion (if available)
+if [ -f /usr/local/emhttp/plugins/easytier/bin/easytier-cli ]; then
+    /usr/local/emhttp/plugins/easytier/bin/easytier-cli completion bash > /etc/bash_completion.d/easytier 2>/dev/null
+fi
+
+# Cleanup old versions
+rm -f $(ls /boot/config/plugins/easytier/unraid-easytier-utils-*.txz 2>/dev/null | grep -v '2026.02.22.0001')
+rm -f $(ls /boot/config/plugins/easytier/*.tar.gz 2>/dev/null | grep -v 'easytier-v0.0.0')
+
+echo ""
+echo "----------------------------------------------------"
+echo " EasyTier has been installed."
+echo " Version: 2026.02.22.0001"
+echo "----------------------------------------------------"
+echo ""
+]]>
+</INLINE>
+</FILE>
+
+<!--
+The 'remove' script.
+-->
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+<![CDATA[
+# Stop service
+/etc/rc.d/rc.easytier stop 2>/dev/null
+
+rm /usr/local/sbin/easytier-core
+rm /usr/local/sbin/easytier-cli
+
+removepkg unraid-easytier-utils
+
+rm -rf /usr/local/emhttp/plugins/easytier
+rm -f /boot/config/plugins/easytier/*.tar.gz
+rm -f /boot/config/plugins/easytier/*.txz
+]]>
+</INLINE>
+</FILE>
+
+</PLUGIN>

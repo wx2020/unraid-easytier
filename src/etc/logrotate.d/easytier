@@ -1,0 +1,12 @@
+/var/log/easytier.log {
+    daily
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+    postrotate
+        /usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/easytier-core" 1> /dev/null 2> /dev/null && /usr/bin/killall -HUP --ns $$ easytier-core 2> /dev/null || true
+    endscript
+}

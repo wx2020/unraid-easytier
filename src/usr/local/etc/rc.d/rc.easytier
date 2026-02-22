@@ -1,0 +1,62 @@
+#!/bin/sh
+# /etc/rc.d/rc.easytier - start/stop the EasyTier service
+
+. /usr/local/php/easytier-utils/log.sh
+
+start_easytier() {
+  if ! /usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/easytier-core" 1> /dev/null 2> /dev/null ; then
+
+    /usr/local/php/easytier-utils/pre-startup.php
+    if [ $? -ne 0 ]; then
+        log "EasyTier is disabled in settings, not starting easytier-core."
+        return
+    fi
+
+    if [ -f /usr/local/emhttp/plugins/easytier/custom-params.sh ]; then
+        . /usr/local/emhttp/plugins/easytier/custom-params.sh
+    else
+        EASYTIER_CUSTOM_PARAMS=""
+    fi
+
+    # Create state directory
+    mkdir -p /boot/config/plugins/easytier/state
+
+    # Build EasyTier start command
+    # Note: Adjust these parameters based on EasyTier's actual CLI
+    EASYTIER_START_CMD="/usr/local/sbin/easytier-core $EASYTIER_CUSTOM_PARAMS"
+
+    log "Starting EasyTier: $EASYTIER_START_CMD"
+
+    # Start EasyTier in background with logging
+    $EASYTIER_START_CMD 2>&1 | grep -v "monitor:" >> /var/log/easytier.log &
+
+    # Start the watcher process
+    nohup /usr/local/emhttp/plugins/easytier/easytier-watcher.php 1>/dev/null 2>&1 &
+  fi
+}
+
+stop_easytier() {
+  log "Stopping EasyTier."
+  killall --ns $$ --wait easytier-watcher.php 2> /dev/null
+  killall --ns $$ --wait easytier-core 2> /dev/null
+}
+
+restart_easytier() {
+  stop_easytier
+  sleep 1
+  start_easytier
+}
+
+case "$1" in
+'start')
+  start_easytier
+  ;;
+'stop')
+  stop_easytier
+  ;;
+'restart')
+  restart_easytier
+  ;;
+*)
+  echo "usage $0 start|stop|restart"
+esac

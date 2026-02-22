@@ -1,0 +1,26 @@
+# EasyTier plugin files
+*.txz
+*.tgz
+*.tar.gz
+
+# Unraid specific
+/boot/config/plugins/easytier/state/
+*.log
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PHP
+/vendor/
+composer.lock
+
+# Build
+*.txz.md5
