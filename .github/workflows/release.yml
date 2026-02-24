@@ -4,13 +4,19 @@ on:
   push:
     tags:
       - 'v*'
-      - '20*.*.*.*'
+      - '20*'
+      - '**-beta*'
+      - '**-rc*'
+      - '**-alpha*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version (e.g., 2026.02.22.0001)'
+        description: 'Version (e.g., 2026.02.22.0001 or 2026.02.22.0001-beta)'
         required: true
         default: '2026.02.22.0001'
+
+permissions:
+  contents: write
 
 jobs:
   build:
