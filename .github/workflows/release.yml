@@ -82,9 +82,12 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.VERSION }}"
 
-          # Update utils package SHA256 in plg file
-          sed -i "s|<URL>https://github.com/wx2020/unraid-easytier/releases/download/[^\"]*</URL>|<URL>https://github.com/wx2020/unraid-easytier/releases/download/${VERSION}/unraid-easytier-utils-${VERSION}-noarch-1.txz</URL>|g" plugin/easytier.plg
-          sed -i "s|<FILE Name=\"/boot/config/plugins/easytier/unraid-easytier-utils-[^\"]*\.txz\">|<FILE Name=\"/boot/config/plugins/easytier/unraid-easytier-utils-${VERSION}-noarch-1.txz\">|g" plugin/easytier.plg
+          # Update utils package URL and filename in plg file
+          # Match the exact pattern: 2026.02.22.0001-noarch-1.txz
+          sed -i "s|unraid-easytier-utils-[0-9.]*-noarch-1\.txz|unraid-easytier-utils-${VERSION}-noarch-1.txz|g" plugin/easytier.plg
+          sed -i "s|releases/download/[0-9.]*\.[0-9]*/\([^\"]*\)\.txz|releases/download/${VERSION}/\1.txz|g" plugin/easytier.plg
+
+          # Update SHA256
           sed -i "s/<SHA256>PLACEHOLDER_SHA256<\/SHA256>/<SHA256>${{ env.SHA256 }}<\/SHA256>/" plugin/easytier.plg
 
           # Copy plg file with version suffix
