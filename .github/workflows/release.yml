@@ -81,10 +81,10 @@ jobs:
       - name: Update plg file with SHA256
         run: |
           VERSION="${{ steps.get_version.outputs.VERSION }}"
-          PKG_NAME="unraid-easytier-utils"
-          PKG_FILE="${PKG_NAME}-${VERSION}-noarch-1.txz"
 
-          # Update SHA256 in plg file
+          # Update utils package SHA256 in plg file
+          sed -i "s|<URL>https://github.com/wx2020/unraid-easytier/releases/download/[^\"]*</URL>|<URL>https://github.com/wx2020/unraid-easytier/releases/download/${VERSION}/unraid-easytier-utils-${VERSION}-noarch-1.txz</URL>|g" plugin/easytier.plg
+          sed -i "s|<FILE Name=\"/boot/config/plugins/easytier/unraid-easytier-utils-[^\"]*\.txz\">|<FILE Name=\"/boot/config/plugins/easytier/unraid-easytier-utils-${VERSION}-noarch-1.txz\">|g" plugin/easytier.plg
           sed -i "s/<SHA256>PLACEHOLDER_SHA256<\/SHA256>/<SHA256>${{ env.SHA256 }}<\/SHA256>/" plugin/easytier.plg
 
           # Copy plg file with version suffix
