@@ -1,0 +1,164 @@
+name: PR Check Build
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'plugin/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xz-utils
+
+      - name: Build utils package (test)
+        run: |
+          VERSION="test-build"
+          PKG_NAME="unraid-easytier-utils"
+          PKG_VERSION="${PKG_NAME}-${VERSION}-noarch-1"
+          PKG_FILE="${PKG_VERSION}.txz"
+          BUILD_DIR="build"
+          PACKAGE_DIR="${BUILD_DIR}/${PKG_VERSION}"
+
+          echo "开始构建测试包..."
+
+          # Clean previous build
+          rm -rf "${BUILD_DIR}"
+
+          # Create package directory
+          mkdir -p "${PACKAGE_DIR}"
+
+          # Copy source files maintaining directory structure
+          cd src
+          find . -type f -not -path "*/\.*" | while read -r file; do
+            mkdir -p "../${PACKAGE_DIR}/$(dirname "$file")"
+            cp "$file" "../${PACKAGE_DIR}/$file"
+          done
+          cd ..
+
+          # Count files
+          FILE_COUNT=$(find "${PACKAGE_DIR}" -type f | wc -l)
+          echo "打包文件数量: $FILE_COUNT"
+
+          # Create the package
+          cd "${BUILD_DIR}"
+          tar --xz -cf "../${PKG_FILE}" "${PKG_VERSION}"
+          cd ..
+
+          # Get package size
+          PKG_SIZE=$(du -h "${PKG_FILE}" | cut -f1)
+          echo "包大小: $PKG_SIZE"
+
+          # Calculate SHA256
+          SHA256=$(sha256sum "${PKG_FILE}" | awk '{print $1}')
+          echo "SHA256: $SHA256"
+
+          echo "PACKAGE_FILE=${PKG_FILE}" >> $GITHUB_ENV
+          echo "PACKAGE_SIZE=${PKG_SIZE}" >> $GITHUB_ENV
+          echo "FILE_COUNT=${FILE_COUNT}" >> $GITHUB_ENV
+
+      - name: Validate package structure
+        run: |
+          VERSION="test-build"
+          PKG_NAME="unraid-easytier-utils"
+          PKG_VERSION="${PKG_NAME}-${VERSION}-noarch-1"
+
+          echo "验证包结构..."
+
+          # Extract and check structure
+          mkdir -p /tmp/validate
+          tar -xf "${{ env.PACKAGE_FILE }}" -C /tmp/validate
+
+          # Check required files
+          REQUIRED_FILES=(
+            "install/doinst.sh"
+            "usr/local/emhttp/plugins/easytier/include/Pages/Settings.php"
+            "usr/local/emhttp/plugins/easytier/include/Pages/Logs.php"
+            "usr/local/emhttp/plugins/easytier/styles/settings.css"
+            "usr/local/emhttp/plugins/easytier/styles/logs.css"
+            "usr/local/php/easytier-utils/easytier-utils/Config.php"
+            "usr/local/php/easytier-utils/easytier-utils/System.php"
+            "usr/local/php/easytier-utils/easytier-utils/Utils.php"
+            "usr/local/etc/rc.d/rc.easytier"
+          )
+
+          MISSING_COUNT=0
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ -f "/tmp/validate/${PKG_VERSION}/${file}" ]; then
+              echo "✅ $file"
+            else
+              echo "❌ $file (缺失)"
+              ((MISSING_COUNT++))
+            fi
+          done
+
+          if [ $MISSING_COUNT -gt 0 ]; then
+            echo "错误: 缺失 $MISSING_COUNT 个必需文件"
+            exit 1
+          fi
+
+          echo ""
+          echo "所有必需文件验证通过 ✅"
+
+          # Cleanup
+          rm -rf /tmp/validate
+
+      - name: Validate PHP syntax
+        run: |
+          echo "检查 PHP 语法..."
+
+          # Find all PHP files
+          PHP_FILES=$(find src -name "*.php" -type f)
+
+          ERROR_COUNT=0
+          for file in $PHP_FILES; do
+            if php -l "$file" > /dev/null 2>&1; then
+              echo "✅ $file"
+            else
+              echo "❌ $file (语法错误)"
+              ((ERROR_COUNT++))
+              php -l "$file"
+            fi
+          done
+
+          if [ $ERROR_COUNT -gt 0 ]; then
+            echo "错误: 发现 $ERROR_COUNT 个 PHP 语法错误"
+            exit 1
+          fi
+
+          echo ""
+          echo "PHP 语法检查通过 ✅"
+
+      - name: Summary
+        run: |
+          echo "## PR 检查构建结果 ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 构建信息" >> $GITHUB_STEP_SUMMARY
+          echo "- **文件数量**: ${{ env.FILE_COUNT }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **包大小**: ${{ env.PACKAGE_SIZE }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **结构验证**: ✅ 通过" >> $GITHUB_STEP_SUMMARY
+          echo "- **PHP 语法**: ✅ 通过" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 验证通过的关键文件" >> $GITHUB_STEP_SUMMARY
+          echo "- Settings.php 和 Logs.php 页面" >> $GITHUB_STEP_SUMMARY
+          echo "- CSS 样式文件" >> $GITHUB_STEP_SUMMARY
+          echo "- Config、System、Utils 类" >> $GITHUB_STEP_SUMMARY
+          echo "- 服务控制脚本 rc.easytier" >> $GITHUB_STEP_SUMMARY
+          echo "- 安装脚本 doinst.sh" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-build-utils-package
+          path: ${{ env.PACKAGE_FILE }}
+          retention-days: 7

@@ -13,10 +13,19 @@ EasyTier networking plugin for Unraid OS.
 
 ## Installation
 
-1. Download the latest `easytier.plg` file from the [Releases](https://github.com/yourusername/unraid-easytier/releases) page
-2. In Unraid, go to **Settings** → **Plugins** → **Install Plugin**
-3. Paste the URL to the `easytier.plg` file or upload it directly
-4. Click **Install**
+### Method 1: Plugin URL (Recommended)
+
+1. In Unraid, go to **Settings** → **Plugins** → **Install Plugin**
+2. Paste one of the following URLs:
+   - **Latest Release**: `https://github.com/wx2020/unraid-easytier/releases/latest/download/easytier.plg`
+   - **Specific Version**: `https://github.com/wx2020/unraid-easytier/releases/download/VERSION/easytier-VERSION.plg`
+3. Click **Install**
+
+### Method 2: Manual Download
+
+1. Download the latest `easytier.plg` from the [Releases](https://github.com/wx2020/unraid-easytier/releases) page
+2. Upload it to Unraid using **Plugins** → **Install Plugin**
+3. Click **Install**
 
 ## Configuration
 
@@ -73,15 +82,51 @@ unraid-easytier/
 
 ## Development
 
-### Building the Plugin
+### Building for Testing
 
-1. Update version numbers in `plugin/easytier.plg`
-2. Update download URLs and SHA256 checksums
-3. Build the utils package:
-   ```bash
-   cd src
-   makepkg -l y -c y ../unraid-easytier-utils-<version>-noarch-1.txz
-   ```
+See [BUILD.md](BUILD.md) for detailed build instructions.
+
+Quick start:
+```bash
+# Linux/WSL
+make
+
+# Or using the build script
+chmod +x build.sh
+./build.sh
+
+# Windows PowerShell
+.\build.ps1
+```
+
+### Creating a Release
+
+Releases are automatically created via GitHub Actions when you push a tag:
+
+```bash
+# Tag the release
+git tag 2026.02.22.0001
+git push origin 2026.02.22.0001
+```
+
+Or manually trigger the workflow from GitHub Actions page.
+
+The workflow will:
+1. Build the utils package
+2. Calculate SHA256
+3. Update the plg file with the correct SHA256
+4. Create a GitHub release with all assets
+5. Provide installation URL for easy testing
+
+### Testing Changes
+
+1. Make your changes to files in `src/`
+2. Create a PR to test the build
+3. The PR check workflow will validate:
+   - Package structure
+   - PHP syntax
+   - Required files presence
+4. After merge, create a tag to trigger release build
 
 ### Testing
 

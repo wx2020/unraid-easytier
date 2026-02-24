@@ -1,0 +1,160 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - '20*.*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 2026.02.22.0001)'
+        required: true
+        default: '2026.02.22.0001'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=$(echo $GITHUB_REF | sed -e 's/refs\/tags\///' | sed -e 's/^v//')
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xz-utils
+
+      - name: Build utils package
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          PKG_NAME="unraid-easytier-utils"
+          PKG_VERSION="${PKG_NAME}-${VERSION}-noarch-1"
+          PKG_FILE="${PKG_VERSION}.txz"
+          BUILD_DIR="build"
+          PACKAGE_DIR="${BUILD_DIR}/${PKG_VERSION}"
+
+          # Clean previous build
+          rm -rf "${BUILD_DIR}"
+
+          # Create package directory
+          mkdir -p "${PACKAGE_DIR}"
+
+          # Copy source files maintaining directory structure
+          cd src
+          find . -type f -not -path "*/\.*" | while read -r file; do
+            mkdir -p "../${PACKAGE_DIR}/$(dirname "$file")"
+            cp "$file" "../${PACKAGE_DIR}/$file"
+          done
+          cd ..
+
+          # Create the package
+          cd "${BUILD_DIR}"
+          tar --xz -cf "../${PKG_FILE}" "${PKG_VERSION}"
+          cd ..
+
+          # Calculate SHA256
+          SHA256=$(sha256sum "${PKG_FILE}" | awk '{print $1}')
+          echo "SHA256=${SHA256}" >> $GITHUB_ENV
+          echo "PKG_FILE=${PKG_FILE}" >> $GITHUB_ENV
+
+          # Save SHA256 to file
+          echo "${SHA256}" > "${PKG_FILE}.sha256"
+
+      - name: Update plg file with SHA256
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          PKG_NAME="unraid-easytier-utils"
+          PKG_FILE="${PKG_NAME}-${VERSION}-noarch-1.txz"
+
+          # Update SHA256 in plg file
+          sed -i "s/<SHA256>PLACEHOLDER_SHA256<\/SHA256>/<SHA256>${{ env.SHA256 }}<\/SHA256>/" plugin/easytier.plg
+
+          # Copy plg file with version suffix
+          cp plugin/easytier.plg "easytier-${VERSION}.plg"
+
+      - name: Create release checksums
+        run: |
+          echo "# Checksums for version ${{ env.VERSION }}" > checksums.txt
+          echo "" >> checksums.txt
+          echo "## Utils Package" >> checksums.txt
+          echo "SHA256(${{ env.PKG_FILE }}) = ${{ env.SHA256 }}" >> checksums.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: easytier-package-${{ env.VERSION }}
+          path: |
+            ${{ env.PKG_FILE }}
+            ${{ env.PKG_FILE }}.sha256
+            easytier-${{ env.VERSION }.plg
+            plugin/easytier.plg
+            checksums.txt
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.VERSION }}
+          tag_name: ${{ github.ref_name }}
+          body: |
+            ## Unraid EasyTier Plugin ${{ env.VERSION }}
+
+            ### 安装方式
+
+            #### 方法一：从插件 URL 安装（推荐）
+            在 Unraid 中：设置 → 插件 → 安装插件
+            ```
+            https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/easytier-${{ env.VERSION }}.plg
+            ```
+
+            #### 方法二：手动安装
+            1. 下载 `easytier-${{ env.VERSION }}.plg` 到 Unraid
+            2. 在插件设置中安装
+
+            ### 更新内容
+            - 完善插件功能
+            - 优化 Web UI 界面
+            - 添加服务监控脚本
+            - 完善配置管理
+
+            ### 文件校验
+            ${{ env.PKG_FILE }}: `${{ env.SHA256 }}`
+
+            ---
+            自动构建于 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          files: |
+            ${{ env.PKG_FILE }}
+            ${{ env.PKG_FILE }}.sha256
+            easytier-${{ env.VERSION }}.plg
+            plugin/easytier.plg
+            checksums.txt
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## 构建完成 ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**版本**: ${{ env.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Utils 包**: ${{ env.PKG_FILE }}" >> $GITHUB_STEP_SUMMARY
+          echo "**SHA256**: \`${{ env.SHA256 }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 安装插件" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "在 Unraid 中使用以下 URL 安装：" >> $GITHUB_STEP_SUMMARY
+          echo "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/easytier-${{ env.VERSION }}.plg" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
