@@ -111,7 +111,6 @@ The 'remove' script.
 
 rm /usr/local/sbin/easytier-*
 
-
 rm -rf /usr/local/emhttp/plugins/easytier
 rm -f /boot/config/plugins/easytier/*.zip
 ]]>

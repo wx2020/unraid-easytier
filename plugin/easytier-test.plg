@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE PLUGIN>
+<PLUGIN name="easytier" author="wx2020" version="2026.02.22.0001" launch="Settings/EasyTier" pluginURL="https://github.com/wx2020/unraid-easytier" support="https://github.com/EasyTier/EasyTier" min="6.12.14">
+<CHANGES><![CDATA[
+### 2026.02.22.0001
+Initial release.
+]]></CHANGES>
+<FILE Name="/boot/config/plugins/easytier/easytier-linux-x86_64-v2.4.5.zip" Run="yes">
+<URL>https://github.com/EasyTier/EasyTier/releases/download/v2.4.5/easytier-linux-x86_64-v2.4.5.zip</URL>
+<SHA256>d33d1fe6e06fae6155ca7a6ea214657de8d29c4edd5e16fb51f128bef29d3aec</SHA256>
+</FILE>
+<FILE Run="/bin/bash">
+<INLINE><![CDATA[
+#!/bin/bash
+echo "Installing EasyTier..."
+mkdir -p /boot/config/plugins/easytier
+echo "Installation complete."
+]]></INLINE>
+</FILE>
+</PLUGIN>
