@@ -83,9 +83,10 @@ jobs:
           VERSION="${{ steps.get_version.outputs.VERSION }}"
 
           # Update utils package URL and filename in plg file
-          # Match the exact pattern: 2026.02.22.0001-noarch-1.txz
-          sed -i "s|unraid-easytier-utils-[0-9.]*-noarch-1\.txz|unraid-easytier-utils-${VERSION}-noarch-1.txz|g" plugin/easytier.plg
-          sed -i "s|releases/download/[0-9.]*\.[0-9]*/\([^\"]*\)\.txz|releases/download/${VERSION}/\1.txz|g" plugin/easytier.plg
+          # Match pattern: unraid-easytier-utils-<version>-noarch-1.txz
+          sed -i "s|unraid-easytier-utils-[^/\"-]*-noarch-1\.txz|unraid-easytier-utils-${VERSION}-noarch-1.txz|g" plugin/easytier.plg
+          # Match pattern: releases/download/<tag>/<file>.txz
+          sed -i "s|releases/download/[^\"]*/unraid-easytier-utils|releases/download/${VERSION}/unraid-easytier-utils|g" plugin/easytier.plg
 
           # Update SHA256
           sed -i "s/<SHA256>PLACEHOLDER_SHA256<\/SHA256>/<SHA256>${{ env.SHA256 }}<\/SHA256>/" plugin/easytier.plg
