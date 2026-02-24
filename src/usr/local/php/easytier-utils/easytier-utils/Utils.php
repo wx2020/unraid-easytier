@@ -74,4 +74,23 @@ class Utils extends \EDACerton\PluginUtils\Utils
         $utils = new Utils(PLUGIN_NAME);
         return $utils->run_command($command, $alwaysShow, $show);
     }
+
+    /**
+     * Format file size in human-readable format
+     */
+    public static function size_formatted(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+
+        if ($bytes === 0) {
+            return '0 B';
+        }
+
+        $pow = floor(log($bytes) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+
+        return round($bytes, 2) . ' ' . $units[$pow];
+    }
 }

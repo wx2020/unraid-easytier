@@ -29,6 +29,7 @@ class Config
     // EasyTier specific settings
     public string $NetworkName;
     public string $NetworkSecret;
+    public string $ServerAddress;  // Public server address to connect to
     public string $Protocol;       // 'udp', 'tcp', 'ws', 'wss'
     public string $Listener;       // Listener address (e.g., '0.0.0.0:11010')
     public string $Proxy;          // SOCKS5 proxy address
@@ -55,6 +56,7 @@ class Config
         // EasyTier specific settings
         $this->NetworkName    = $saved_config["NETWORK_NAME"] ?? "";
         $this->NetworkSecret  = $saved_config["NETWORK_SECRET"] ?? "";
+        $this->ServerAddress  = $saved_config["SERVER_ADDRESS"] ?? "";
         $this->Protocol       = $saved_config["PROTOCOL"] ?? "udp";
         $this->Listener       = $saved_config["LISTENER"] ?? "0.0.0.0:11010";
         $this->Proxy          = $saved_config["PROXY"] ?? "";

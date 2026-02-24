@@ -156,6 +156,10 @@ class System extends \EDACerton\PluginUtils\System
             $custom_params .= "--network-secret \"{$config->NetworkSecret}\" ";
         }
 
+        if (!empty($config->ServerAddress)) {
+            $custom_params .= "--server \"{$config->ServerAddress}\" ";
+        }
+
         if (!empty($config->Protocol)) {
             $custom_params .= "--protocol {$config->Protocol} ";
         }
