@@ -4,7 +4,7 @@
 <PLUGIN
   name="easytier"
   author="wx2020"
-  version="2026.02.22.0001"
+  version="2026.02.24.0001"
   launch="Settings/EasyTier"
   pluginURL="https://raw.githubusercontent.com/wx2020/unraid-easytier/main/plugin/easytier.plg"
   support="https://github.com/EasyTier/EasyTier"
@@ -13,6 +13,16 @@
 
 <CHANGES>
 <![CDATA[
+
+### 2026.02.24.0001
+
+### 🐛 Bug Fixes
+
+- 修复 WebUI 空白页面问题
+- 添加 EasyTier.page 入口文件
+- 创建 BaseUtils 和 BaseSystem 基础类
+- 更新 common.php 支持手动加载类文件
+- 修复缺少 EDACerton\PluginUtils 基类导致的加载失败
 
 ### 2026.02.22.0001
 
