@@ -1,8 +1,8 @@
-Menu="Settings"
+Menu="EasyTier"
 Icon="easytier.png"
-Title="EasyTier"
+Title="Settings"
 Type="xmenu"
-Tabs="true"
+Tag="gears"
 Markdown="false"
 ---
 <?php

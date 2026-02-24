@@ -1,8 +1,8 @@
-Menu="Settings"
+Menu="EasyTier"
 Icon="easytier.png"
-Title="EasyTier"
+Title="Logs"
 Type="xmenu"
-Tabs="true"
+Tag="file-text-o"
 Markdown="false"
 ---
 <?php
@@ -27,4 +27,4 @@ require_once '/usr/local/emhttp/plugins/easytier/include/page.php';
 
 use EasyTier\getPage;
 
-echo getPage('Settings');
+echo getPage('Logs');
