@@ -98,7 +98,7 @@ jobs:
           path: |
             ${{ env.PKG_FILE }}
             ${{ env.PKG_FILE }}.sha256
-            easytier-${{ env.VERSION }.plg
+            easytier-${{ env.VERSION }}.plg
             plugin/easytier.plg
             checksums.txt
 
