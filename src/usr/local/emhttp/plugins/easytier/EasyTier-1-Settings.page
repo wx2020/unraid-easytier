@@ -25,6 +25,6 @@ Markdown="false"
 
 require_once '/usr/local/emhttp/plugins/easytier/include/page.php';
 
-use EasyTier\getPage;
+use function EasyTier\getPage;
 
 echo getPage('Settings');

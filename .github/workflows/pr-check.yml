@@ -32,6 +32,14 @@ jobs:
             xargs -0 -n1 sh -n
           bash -n build.sh
 
+      - name: Render WebUI pages
+        shell: bash
+        run: |
+          sudo mkdir -p /usr/local/php /usr/local/emhttp/plugins
+          sudo cp -a src/usr/local/php/easytier-utils /usr/local/php/
+          sudo cp -a src/usr/local/emhttp/plugins/easytier /usr/local/emhttp/plugins/
+          php tests/render-pages.php
+
       - name: Build and inspect package
         shell: bash
         run: |
@@ -44,6 +52,9 @@ jobs:
           mkdir package
           tar -xf "${PKG}" -C package
           test -f "package/unraid-easytier-utils-${VERSION}-noarch-1/usr/local/etc/rc.d/rc.easytier"
+          ROOT="package/unraid-easytier-utils-${VERSION}-noarch-1"
+          test -f "${ROOT}/usr/local/emhttp/plugins/easytier/EasyTier.page"
+          test -f "${ROOT}/usr/local/php/easytier-utils/bootstrap.php"
 
       - uses: actions/upload-artifact@v4
         with:

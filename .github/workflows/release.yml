@@ -8,7 +8,7 @@ on:
       version:
         description: Version
         required: true
-        default: '2026.07.28.0001'
+        default: '2026.07.28.0002'
 
 permissions:
   contents: write
@@ -41,6 +41,14 @@ jobs:
           find src -type f -name '*.php' -print0 | xargs -0 -n1 php -l
           find src -type f \( -name '*.sh' -o -name 'rc.easytier' \) -print0 |
             xargs -0 -n1 sh -n
+
+      - name: Render WebUI pages
+        shell: bash
+        run: |
+          sudo mkdir -p /usr/local/php /usr/local/emhttp/plugins
+          sudo cp -a src/usr/local/php/easytier-utils /usr/local/php/
+          sudo cp -a src/usr/local/emhttp/plugins/easytier /usr/local/emhttp/plugins/
+          php tests/render-pages.php
 
       - name: Build
         shell: bash

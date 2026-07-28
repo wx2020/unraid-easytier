@@ -77,8 +77,8 @@ Push a version tag matching the release version, or run the **Build and
 Release** workflow with an explicit version:
 
 ```bash
-git tag 2026.07.28.0001
-git push origin 2026.07.28.0001
+git tag 2026.07.28.0002
+git push origin 2026.07.28.0002
 ```
 
 The workflow queries the EasyTier GitHub Releases API for the latest stable

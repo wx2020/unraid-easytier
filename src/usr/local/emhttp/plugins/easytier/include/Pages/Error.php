@@ -21,10 +21,6 @@ namespace EasyTier;
 
 $e = $e ?? null;
 
-if (( ! isset($var)) || ( ! isset($display))) {
-    echo("Missing required WebGUI variables");
-    return;
-}
 ?>
 
 <table class="unraid tablesorter"><thead><tr><td>Error</td></tr></thead></table>
@@ -44,5 +40,5 @@ if (( ! isset($var)) || ( ! isset($display))) {
 </dl>
 
 <blockquote class='inline_help'>
-    Please check the plugin log at /var/log/easytier-utils.log for more details.
+    Please check /var/log/easytier-error.log for more details.
 </blockquote>
