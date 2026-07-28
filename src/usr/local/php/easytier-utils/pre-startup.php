@@ -18,11 +18,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-define("PLUGIN_NAME", "easytier");
-
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Config.php');
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/System.php');
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Utils.php');
+require_once __DIR__ . '/bootstrap.php';
 
 use EasyTier\Config;
 use EasyTier\System;
@@ -35,10 +31,14 @@ if (!$config->Enable) {
 }
 
 // Enable IP forwarding
-System::enableIPForwarding($config);
+System::configureIPForwarding($config);
 
 // Register interface with Unraid network settings
 System::setExtraInterface($config);
+
+if (!$config->AddPeersToHosts) {
+    System::syncHostsFile([]);
+}
 
 // Create custom parameters file
 System::createEasytierParamsFile($config);

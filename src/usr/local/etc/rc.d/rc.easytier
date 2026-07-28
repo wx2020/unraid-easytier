@@ -23,21 +23,22 @@ start_easytier() {
 
     # Build EasyTier start command
     # Note: Adjust these parameters based on EasyTier's actual CLI
-    EASYTIER_START_CMD="/usr/local/sbin/easytier-core $EASYTIER_CUSTOM_PARAMS"
-
-    log "Starting EasyTier: $EASYTIER_START_CMD"
+    log "Starting EasyTier."
 
     # Start EasyTier in background with logging
-    $EASYTIER_START_CMD 2>&1 | grep -v "monitor:" >> /var/log/easytier.log &
+    eval "exec /usr/local/sbin/easytier-core $EASYTIER_CUSTOM_PARAMS" \
+      >> /var/log/easytier.log 2>&1 &
 
     # Start the watcher process
-    nohup /usr/local/emhttp/plugins/easytier/easytier-watcher.php 1>/dev/null 2>&1 &
+    if ! /usr/bin/pgrep --ns $$ --euid root -f "easytier-watcher.php" >/dev/null 2>&1; then
+      nohup /usr/local/emhttp/plugins/easytier/easytier-watcher.php >/dev/null 2>&1 &
+    fi
   fi
 }
 
 stop_easytier() {
   log "Stopping EasyTier."
-  killall --ns $$ --wait easytier-watcher.php 2> /dev/null
+  /usr/bin/pkill --ns $$ --euid root -f "easytier-watcher.php" 2> /dev/null || true
   killall --ns $$ --wait easytier-core 2> /dev/null
 }
 

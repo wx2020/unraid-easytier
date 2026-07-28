@@ -48,10 +48,10 @@ class Config
             $saved_config = array();
         }
 
-        $this->IncludeInterface = boolval($saved_config["INCLUDE_INTERFACE"] ?? "1");
-        $this->Enable           = boolval($saved_config["ENABLE_EASYTIER"] ?? "1");
-        $this->IPForward        = boolval($saved_config["SYSCTL_IP_FORWARD"] ?? "1");
-        $this->AddPeersToHosts  = boolval($saved_config["ADD_PEERS_TO_HOSTS"] ?? "1");
+        $this->IncludeInterface = self::parseBool($saved_config["INCLUDE_INTERFACE"] ?? "1");
+        $this->Enable           = self::parseBool($saved_config["ENABLE_EASYTIER"] ?? "1");
+        $this->IPForward        = self::parseBool($saved_config["SYSCTL_IP_FORWARD"] ?? "1");
+        $this->AddPeersToHosts  = self::parseBool($saved_config["ADD_PEERS_TO_HOSTS"] ?? "1");
 
         // EasyTier specific settings
         $this->NetworkName    = $saved_config["NETWORK_NAME"] ?? "";
@@ -62,6 +62,11 @@ class Config
         $this->Proxy          = $saved_config["PROXY"] ?? "";
         $this->InstanceId     = intval($saved_config["INSTANCE_ID"] ?? "0");
         $this->RpcPort        = $saved_config["RPC_PORT"] ?? "15888";
-        $this->Hostname       = $saved_config["HOSTNAME"] ?? gethostname();
+        $this->Hostname       = $saved_config["HOSTNAME"] ?? (gethostname() ?: 'unraid');
+    }
+
+    private static function parseBool(mixed $value): bool
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 }

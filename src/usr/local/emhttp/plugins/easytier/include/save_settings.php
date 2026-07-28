@@ -20,11 +20,7 @@
 
 namespace EasyTier;
 
-define("PLUGIN_NAME", "easytier");
-
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Config.php');
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/System.php');
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Utils.php');
+require_once '/usr/local/php/easytier-utils/bootstrap.php';
 
 use EasyTier\Config;
 use EasyTier\System;
@@ -33,7 +29,7 @@ use EasyTier\Utils;
 $config = new Config();
 
 // Apply settings
-System::enableIPForwarding($config);
+System::configureIPForwarding($config);
 System::setExtraInterface($config);
 System::createEasytierParamsFile($config);
 

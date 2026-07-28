@@ -48,6 +48,15 @@ class Utils extends \EDACerton\PluginUtils\Utils
         }
 
         list($subnet, $mask) = explode('/', $network, 2);
+        if (
+            filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false ||
+            filter_var($subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false ||
+            !ctype_digit($mask) ||
+            (int) $mask < 0 ||
+            (int) $mask > 32
+        ) {
+            return false;
+        }
         $ip_bin_string       = sprintf("%032b", ip2long($ip));
         $net_bin_string      = sprintf("%032b", ip2long($subnet));
 

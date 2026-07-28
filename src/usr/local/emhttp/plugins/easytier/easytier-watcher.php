@@ -20,10 +20,7 @@
 
 namespace EasyTier;
 
-define("PLUGIN_NAME", "easytier");
-
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Config.php');
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Utils.php');
+require_once '/usr/local/php/easytier-utils/bootstrap.php';
 
 use EasyTier\Config;
 use EasyTier\Utils;
@@ -61,7 +58,7 @@ function canRestart(array &$history, int $window, int $max): bool
 
 function restartEasytier(): bool
 {
-    global $restartHistory;
+    global $restartHistory, $restartWindow, $maxRestarts;
 
     if (!canRestart($restartHistory, $restartWindow, $maxRestarts)) {
         logMessage("ERROR: Too many restart attempts ({$maxRestarts}) within {$restartWindow} seconds. Giving up.");
@@ -72,13 +69,8 @@ function restartEasytier(): bool
 
     logMessage("Attempting to restart easytier-core...");
 
-    // Stop the service
-    shell_exec('/etc/rc.d/rc.easytier stop 2>/dev/null');
-    sleep(2);
-
-    // Start the service
     shell_exec('/etc/rc.d/rc.easytier start 2>/dev/null');
-    sleep(2);
+    sleep(3);
 
     if (isEasytierRunning()) {
         logMessage("Successfully restarted easytier-core");

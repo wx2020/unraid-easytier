@@ -21,22 +21,26 @@ namespace EDACerton\PluginUtils;
 
 class System
 {
-    protected static function updateHostsFile(string $hostname, string $ip): void
+    protected const HOSTS_START = '# BEGIN EASYTIER MANAGED';
+    protected const HOSTS_END = '# END EASYTIER MANAGED';
+
+    protected static function replaceHostsEntries(array $entries): void
     {
         $hosts_file = "/etc/hosts";
-        $hosts_content = file_get_contents($hosts_file);
+        $content = file_exists($hosts_file) ? (string) file_get_contents($hosts_file) : '';
+        $pattern = '/\R?' . preg_quote(self::HOSTS_START, '/') . '.*?' .
+            preg_quote(self::HOSTS_END, '/') . '\R?/s';
+        $content = preg_replace($pattern, PHP_EOL, $content) ?? $content;
+        $content = rtrim($content) . PHP_EOL;
 
-        // Check if entry already exists
-        $pattern = '/^\s*' . preg_quote($ip, '/') . '\s+' . preg_quote($hostname, '/') . '\s*$/m';
-
-        if (preg_match($pattern, $hosts_content)) {
-            // Entry exists, update it
-            $hosts_content = preg_replace($pattern, "{$ip}\t{$hostname}", $hosts_content);
-        } else {
-            // Add new entry
-            $hosts_content .= "{$ip}\t{$hostname}" . PHP_EOL;
+        if ($entries !== []) {
+            $content .= self::HOSTS_START . PHP_EOL;
+            foreach ($entries as $hostname => $ip) {
+                $content .= "{$ip}\t{$hostname}" . PHP_EOL;
+            }
+            $content .= self::HOSTS_END . PHP_EOL;
         }
 
-        file_put_contents($hosts_file, $hosts_content);
+        file_put_contents($hosts_file, $content, LOCK_EX);
     }
 }

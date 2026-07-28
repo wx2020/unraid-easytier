@@ -25,6 +25,8 @@ header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/common.php';
 
 try {
+    requireCsrfToken($_POST['csrf_token'] ?? null);
+
     // Get POST data
     $tab = $_POST['tab'] ?? '';
     $file_path = $_POST['file_path'] ?? '';
@@ -35,9 +37,10 @@ try {
         throw new \Exception('Missing required parameters');
     }
 
-    // Security check: ensure file path is in the allowed directory
-    $allowed_path = '/boot/config/plugins/easytier/';
-    if (strpos($file_path, $allowed_path) !== 0) {
+    $allowedFiles = [
+        'main' => '/boot/config/plugins/easytier/easytier.cfg',
+    ];
+    if (!isset($allowedFiles[$tab]) || !hash_equals($allowedFiles[$tab], $file_path)) {
         throw new \Exception('Invalid file path');
     }
 
@@ -50,7 +53,7 @@ try {
     }
 
     // Write content to file
-    $result = file_put_contents($file_path, $config_content);
+    $result = file_put_contents($file_path, $config_content, LOCK_EX);
     if ($result === false) {
         throw new \Exception('Failed to write to file');
     }

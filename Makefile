@@ -1,7 +1,7 @@
 # Makefile for Unraid EasyTier Plugin
 # Build the utils package (txz)
 
-VERSION := 2026.02.22.0001
+VERSION := $(shell tr -d '\r\n' < VERSION)
 PKG_NAME := unraid-easytier-utils
 PKG_VERSION := $(PKG_NAME)-$(VERSION)-noarch-1
 PKG_FILE := $(PKG_VERSION).txz

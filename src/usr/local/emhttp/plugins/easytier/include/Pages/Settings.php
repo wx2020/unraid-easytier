@@ -25,11 +25,6 @@ if ( ! defined(__NAMESPACE__ . '\PLUGIN_ROOT') || ! defined(__NAMESPACE__ . '\PL
 
 $config = $config ?? new Config();
 
-if (( ! isset($var)) || ( ! isset($display))) {
-    echo("Missing required WebGUI variables");
-    return;
-}
-
 // Define config files and their paths
 $config_files = [
     'main' => [
@@ -37,16 +32,6 @@ $config_files = [
         'path' => '/boot/config/plugins/easytier/easytier.cfg',
         'description' => 'Main EasyTier configuration file'
     ],
-    'network' => [
-        'name' => 'Network Config',
-        'path' => '/boot/config/plugins/easytier/network.cfg',
-        'description' => 'Network-specific configuration'
-    ],
-    'advanced' => [
-        'name' => 'Advanced Config',
-        'path' => '/boot/config/plugins/easytier/advanced.cfg',
-        'description' => 'Advanced tuning parameters'
-    ]
 ];
 
 // Get current tab (default to 'main')
@@ -71,6 +56,9 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
 <input type="hidden" name="#file" value="easytier/easytier.cfg">
 <input type="hidden" name="#cleanup" value="">
 <input type="hidden" name="#command" value="/usr/local/emhttp/plugins/easytier/restart.sh">
+<?php if (isset($GLOBALS['var']['csrf_token'])): ?>
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($GLOBALS['var']['csrf_token']) ?>">
+<?php endif; ?>
 
 <table class="unraid tablesorter"><thead><tr><td>Server Configuration</td></tr></thead></table>
 
@@ -84,6 +72,30 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
     </dd>
 </dl>
 <blockquote class='inline_help'>Enable or disable the EasyTier service.</blockquote>
+
+<dl>
+    <dt>Include Interface in Unraid</dt>
+    <dd><select name="INCLUDE_INTERFACE" class="narrow">
+        <?= Utils::make_option($config->IncludeInterface, '1', 'Yes') ?>
+        <?= Utils::make_option(!$config->IncludeInterface, '0', 'No') ?>
+    </select></dd>
+</dl>
+
+<dl>
+    <dt>Enable IP Forwarding</dt>
+    <dd><select name="SYSCTL_IP_FORWARD" class="narrow">
+        <?= Utils::make_option($config->IPForward, '1', 'Yes') ?>
+        <?= Utils::make_option(!$config->IPForward, '0', 'No') ?>
+    </select></dd>
+</dl>
+
+<dl>
+    <dt>Add Peers to Hosts</dt>
+    <dd><select name="ADD_PEERS_TO_HOSTS" class="narrow">
+        <?= Utils::make_option($config->AddPeersToHosts, '1', 'Yes') ?>
+        <?= Utils::make_option(!$config->AddPeersToHosts, '0', 'No') ?>
+    </select></dd>
+</dl>
 
 <dl>
     <dt>Network Name</dt>
@@ -146,6 +158,12 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
         </dd>
     </dl>
     <blockquote class='inline_help'>Hostname for this EasyTier instance (optional).</blockquote>
+
+    <dl>
+        <dt>SOCKS5 Listen Port</dt>
+        <dd><input type="number" min="1" max="65535" name="PROXY"
+                   value="<?= htmlspecialchars($config->Proxy) ?>" placeholder="1080"></dd>
+    </dl>
 </div>
 
 <dl>
@@ -184,6 +202,7 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
     <form method="POST" action="/plugins/easytier/include/save_config_file.php" id="configFileForm">
         <input type="hidden" name="tab" value="<?= htmlspecialchars($current_tab) ?>">
         <input type="hidden" name="file_path" value="<?= htmlspecialchars($config_files[$current_tab]['path']) ?>">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($GLOBALS['var']['csrf_token'] ?? '') ?>">
 
         <textarea name="config_content" id="configEditor" class="config-editor"
                   placeholder="# Configuration file will be created when you save"
@@ -205,12 +224,22 @@ function switchTab(tabId) {
 }
 
 function applyServerSettings() {
-    $("#progressFrame").attr('src', "/plugins/easytier/include/save_settings.php");
+    document.getElementById('serverForm').submit();
 }
 
 function restartService() {
     if (confirm("Are you sure you want to restart the EasyTier service?")) {
-        $("#progressFrame").attr('src', "/plugins/easytier/include/restart_service.php");
+        const body = new URLSearchParams({
+            csrf_token: '<?= htmlspecialchars($GLOBALS['var']['csrf_token'] ?? '') ?>'
+        });
+        fetch('/plugins/easytier/include/restart_service.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body
+        }).then(response => {
+            if (!response.ok) throw new Error('Restart request failed');
+            return response.text();
+        }).then(message => alert(message)).catch(error => alert(error));
     }
 }
 

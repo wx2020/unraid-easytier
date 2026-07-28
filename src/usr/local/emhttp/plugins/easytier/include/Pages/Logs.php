@@ -25,11 +25,6 @@ if ( ! defined(__NAMESPACE__ . '\PLUGIN_ROOT') || ! defined(__NAMESPACE__ . '\PL
 
 $config = $config ?? new Config();
 
-if (( ! isset($var)) || ( ! isset($display))) {
-    echo("Missing required WebGUI variables");
-    return;
-}
-
 // Define log file
 $log_file = '/var/log/easytier.log';
 
@@ -60,7 +55,7 @@ if (file_exists($log_file)) {
 }
 
 // Get file size if exists
-$file_size = file_exists($log_file) ? size_formatted(filesize($log_file)) : 'N/A';
+$file_size = file_exists($log_file) ? Utils::size_formatted((int) filesize($log_file)) : 'N/A';
 $file_modified = file_exists($log_file) ? date('Y-m-d H:i:s', filemtime($log_file)) : 'N/A';
 
 ?>
@@ -127,7 +122,8 @@ function clearLogs() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                log_file: '<?= htmlspecialchars($log_file) ?>'
+                log_file: '<?= htmlspecialchars($log_file) ?>',
+                csrf_token: '<?= htmlspecialchars($GLOBALS['var']['csrf_token'] ?? '') ?>'
             })
         })
         .then(response => response.json())

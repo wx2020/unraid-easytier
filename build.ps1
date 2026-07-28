@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$VERSION = "2026.02.22.0001"
+$VERSION = (Get-Content (Join-Path $PSScriptRoot "VERSION") -Raw).Trim()
 $PKG_NAME = "unraid-easytier-utils"
 $PKG_VERSION = "$PKG_NAME-$VERSION-noarch-1"
 $PKG_FILE = "$PKG_VERSION.txz"
@@ -16,6 +16,7 @@ Write-Host "Building $PKG_FILE..." -ForegroundColor Cyan
 if (Test-Path $BUILD_DIR) {
     Remove-Item -Path $BUILD_DIR -Recurse -Force
 }
+Remove-Item -LiteralPath $PKG_FILE, "$PKG_FILE.sha256" -Force -ErrorAction SilentlyContinue
 
 # Create package directory
 New-Item -ItemType Directory -Path $PACKAGE_DIR -Force | Out-Null
@@ -66,12 +67,10 @@ Pop-Location
 # Calculate SHA256
 Write-Host "Calculating SHA256..." -ForegroundColor Yellow
 
-# Use certutil on Windows
-$sha256Output = certutil -hashfile "$PKG_FILE" SHA256[0]
-$sha256Hash = $sha256Output.Split("`n")[1].Trim().ToUpper()
+$sha256Hash = (Get-FileHash -LiteralPath "$PKG_FILE" -Algorithm SHA256).Hash.ToLowerInvariant()
 
 # Save SHA256 to file
-$sha256Hash | Out-File -FilePath "$PKG_FILE.sha256" -Encoding ASCII
+"$sha256Hash  $PKG_FILE" | Out-File -FilePath "$PKG_FILE.sha256" -Encoding ASCII
 
 Write-Host ""
 Write-Host "=== Build Complete ===" -ForegroundColor Green

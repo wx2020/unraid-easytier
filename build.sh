@@ -4,7 +4,7 @@
 
 set -e
 
-VERSION="2026.02.22.0001"
+VERSION="$(tr -d '\r\n' < VERSION)"
 PKG_NAME="unraid-easytier-utils"
 PKG_VERSION="${PKG_NAME}-${VERSION}-noarch-1"
 PKG_FILE="${PKG_VERSION}.txz"
@@ -37,7 +37,7 @@ cd ..
 # Calculate SHA256
 echo "Calculating SHA256..."
 SHA256=$(sha256sum "${PKG_FILE}" | awk '{print $1}')
-echo "${SHA256}" > "${PKG_FILE}.sha256"
+echo "${SHA256}  ${PKG_FILE}" > "${PKG_FILE}.sha256"
 
 echo ""
 echo "=== Build Complete ==="

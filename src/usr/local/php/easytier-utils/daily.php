@@ -18,11 +18,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-define("PLUGIN_NAME", "easytier");
-
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Config.php');
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/System.php');
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Utils.php');
+require_once __DIR__ . '/bootstrap.php';
 
 use EasyTier\Config;
 use EasyTier\System;
@@ -34,8 +30,12 @@ if (!$config->Enable) {
     exit(0);
 }
 
-// Perform daily maintenance tasks
-// For example: log rotation, cleanup, health checks
 Utils::logwrap("Running daily maintenance tasks");
+
+if ($config->AddPeersToHosts) {
+    $peers = System::getPeers();
+    System::syncHostsFile($peers);
+    Utils::logwrap('Peer hostname sync completed (' . count($peers) . ' peers)');
+}
 
 exit(0);

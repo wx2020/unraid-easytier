@@ -28,6 +28,10 @@ try {
     // Get JSON input
     $json_input = file_get_contents('php://input');
     $data = json_decode($json_input, true);
+    if (!is_array($data)) {
+        throw new \Exception('Invalid JSON request');
+    }
+    requireCsrfToken($data['csrf_token'] ?? null);
 
     $log_file = $data['log_file'] ?? '';
 

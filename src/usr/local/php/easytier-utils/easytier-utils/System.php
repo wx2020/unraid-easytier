@@ -31,19 +31,47 @@ class System extends \EDACerton\PluginUtils\System
     public const RESTART_COMMAND = "/usr/local/emhttp/webGui/scripts/reload_services";
     public const NOTIFY_COMMAND  = "/usr/local/emhttp/webGui/scripts/notify";
 
-    public static function addToHostFile(array $peers): void
+    public static function syncHostsFile(array $peers): void
     {
+        $entries = [];
         foreach ($peers as $peer) {
             if (isset($peer['hostname']) && isset($peer['virtual_ip'])) {
                 $ip = $peer['virtual_ip'];
                 $hostname = $peer['hostname'];
 
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                    Utils::logwrap("Adding peer {$hostname} with IP {$ip} to hosts file");
-                    self::updateHostsFile($hostname, $ip);
+                if (
+                    filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) &&
+                    preg_match('/^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$/', $hostname)
+                ) {
+                    $entries[$hostname] = $ip;
                 }
             }
         }
+        self::replaceHostsEntries($entries);
+    }
+
+    public static function getPeers(): array
+    {
+        if (!is_executable('/usr/local/sbin/easytier-cli')) {
+            return [];
+        }
+
+        $lines = Utils::runwrap('/usr/local/sbin/easytier-cli peer', false, false);
+        $peers = [];
+        foreach ($lines as $line) {
+            if (!str_contains($line, '|')) {
+                continue;
+            }
+            $columns = array_map('trim', explode('|', trim($line, " \t|")));
+            if (
+                count($columns) >= 2 &&
+                filter_var($columns[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) &&
+                strcasecmp($columns[1], 'hostname') !== 0
+            ) {
+                $peers[] = ['virtual_ip' => $columns[0], 'hostname' => $columns[1]];
+            }
+        }
+        return $peers;
     }
 
     public static function checkWebgui(Config $config, string $easytier_ipv4, bool $allowRestart): bool
@@ -79,13 +107,17 @@ class System extends \EDACerton\PluginUtils\System
         }
     }
 
-    public static function enableIPForwarding(Config $config): void
+    public static function configureIPForwarding(Config $config): void
     {
+        $path = '/etc/sysctl.d/99-easytier.conf';
         if ($config->Enable && $config->IPForward) {
             Utils::logwrap("Enabling IP forwarding");
-            $sysctl = "net.ipv4.ip_forward = 1" . PHP_EOL . "net.ipv6.conf.all.forwarding = 1";
-            file_put_contents('/etc/sysctl.d/99-easytier.conf', $sysctl);
-            Utils::runwrap("sysctl -p /etc/sysctl.d/99-easytier.conf", true);
+            $sysctl = "net.ipv4.ip_forward = 1" . PHP_EOL .
+                "net.ipv6.conf.all.forwarding = 1" . PHP_EOL;
+            file_put_contents($path, $sysctl, LOCK_EX);
+            Utils::runwrap("sysctl -p {$path}", true);
+        } elseif (file_exists($path)) {
+            unlink($path);
         }
     }
 
@@ -145,45 +177,52 @@ class System extends \EDACerton\PluginUtils\System
 
     public static function createEasytierParamsFile(Config $config): void
     {
-        $custom_params = "";
+        $params = ['--dhcp', '--dev-name', 'easytier0'];
 
         // Build EasyTier specific parameters
         if (!empty($config->NetworkName)) {
-            $custom_params .= "--network-name \"{$config->NetworkName}\" ";
+            $params[] = '--network-name';
+            $params[] = $config->NetworkName;
         }
 
         if (!empty($config->NetworkSecret)) {
-            $custom_params .= "--network-secret \"{$config->NetworkSecret}\" ";
+            $params[] = '--network-secret';
+            $params[] = $config->NetworkSecret;
         }
 
         if (!empty($config->ServerAddress)) {
-            $custom_params .= "--server \"{$config->ServerAddress}\" ";
-        }
-
-        if (!empty($config->Protocol)) {
-            $custom_params .= "--protocol {$config->Protocol} ";
+            $params[] = '--peers';
+            $params[] = $config->ServerAddress;
         }
 
         if (!empty($config->Listener)) {
-            $custom_params .= "--listener \"{$config->Listener}\" ";
+            $listener = str_contains($config->Listener, '://')
+                ? $config->Listener
+                : "{$config->Protocol}://{$config->Listener}";
+            $params[] = '--listeners';
+            $params[] = $listener;
         }
 
         if (!empty($config->Proxy)) {
-            $custom_params .= "--proxy \"{$config->Proxy}\" ";
-        }
-
-        if ($config->InstanceId > 0) {
-            $custom_params .= "--instance-id {$config->InstanceId} ";
+            $params[] = '--socks5';
+            $params[] = $config->Proxy;
         }
 
         if (!empty($config->RpcPort)) {
-            $custom_params .= "--rpc-port {$config->RpcPort} ";
+            $params[] = '--rpc-portal';
+            $params[] = $config->RpcPort;
         }
 
         if (!empty($config->Hostname)) {
-            $custom_params .= "--hostname \"{$config->Hostname}\" ";
+            $params[] = '--hostname';
+            $params[] = $config->Hostname;
         }
 
-        file_put_contents('/usr/local/emhttp/plugins/easytier/custom-params.sh', 'EASYTIER_CUSTOM_PARAMS="' . $custom_params . '"');
+        $encoded = array_map('escapeshellarg', $params);
+        file_put_contents(
+            '/usr/local/emhttp/plugins/easytier/custom-params.sh',
+            'EASYTIER_CUSTOM_PARAMS=' . escapeshellarg(implode(' ', $encoded)) . PHP_EOL,
+            LOCK_EX
+        );
     }
 }

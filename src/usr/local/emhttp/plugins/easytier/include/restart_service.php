@@ -20,13 +20,16 @@
 
 namespace EasyTier;
 
-define("PLUGIN_NAME", "easytier");
-
-require_once('/usr/local/emhttp/plugins/easytier/include/easytier-utils/Utils.php');
+require_once dirname(__FILE__) . '/common.php';
 
 use EasyTier\Utils;
 
-// Restart the EasyTier service
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit('Method not allowed');
+}
+
+requireCsrfToken($_POST['csrf_token'] ?? null);
 Utils::runwrap("/etc/rc.d/rc.easytier restart", false, false);
 
 echo "EasyTier service restarted successfully.";

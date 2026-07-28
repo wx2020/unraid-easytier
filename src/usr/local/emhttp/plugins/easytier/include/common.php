@@ -20,19 +20,22 @@
 namespace EasyTier;
 
 define(__NAMESPACE__ . "\PLUGIN_ROOT", dirname(dirname(__FILE__)));
-define(__NAMESPACE__ . "\PLUGIN_NAME", "easytier-utils");
+define(__NAMESPACE__ . "\PLUGIN_NAME", "easytier");
 
 // Try to load composer autoloader first, fallback to manual loading
-if (file_exists("/usr/local/php/easytier-utils/vendor/autoload.php")) {
-    require_once "/usr/local/php/easytier-utils/vendor/autoload.php";
-} else {
-    // Manual loading if composer autoloader is not available
-    require_once "/usr/local/php/easytier-utils/easytier-utils/BaseUtils.php";
-    require_once "/usr/local/php/easytier-utils/easytier-utils/BaseSystem.php";
-    require_once "/usr/local/php/easytier-utils/easytier-utils/Utils.php";
-    require_once "/usr/local/php/easytier-utils/easytier-utils/System.php";
-    require_once "/usr/local/php/easytier-utils/easytier-utils/Config.php";
-}
+require_once "/usr/local/php/easytier-utils/bootstrap.php";
 
 $utils = new Utils(PLUGIN_NAME);
 $utils->setPHPDebug();
+
+function requireCsrfToken(?string $token): void
+{
+    $varFile = '/var/local/emhttp/var.ini';
+    $server = file_exists($varFile) ? parse_ini_file($varFile) : false;
+    $expected = is_array($server) ? ($server['csrf_token'] ?? '') : '';
+
+    if (!is_string($token) || $expected === '' || !hash_equals($expected, $token)) {
+        http_response_code(403);
+        throw new \RuntimeException('Invalid CSRF token');
+    }
+}
