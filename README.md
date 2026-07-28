@@ -1,5 +1,7 @@
 # Unraid EasyTier Plugin
 
+[中文文档](README_CN.md)
+
 EasyTier networking plugin for Unraid OS 6.12.14 and later.
 
 ## About EasyTier
