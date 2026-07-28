@@ -19,9 +19,13 @@ from the latest release:
 
 `https://github.com/wx2020/unraid-easytier/releases/latest/download/easytier.plg`
 
+This URL always installs the most recently published plugin release. Changes
+merged to `main` are not available through this URL until the **Build and
+Release** workflow publishes a new release.
+
 The `plugin/easytier.plg` file in the source tree is a release template. Its
-utils-package checksum is replaced by the release workflow, so the template
-itself is not an installable release artifact.
+utils-package checksum and EasyTier binary metadata are replaced by the release
+workflow, so the template itself is not an installable release artifact.
 
 ## Configuration
 
@@ -68,7 +72,9 @@ git push origin 2026.07.28.0001
 
 The workflow queries the EasyTier GitHub Releases API for the latest stable
 Linux x86_64 archive, verifies the downloaded asset by calculating its SHA256,
-builds the utils package, and generates the installable PLG files.
+builds the utils package, and generates the installable PLG files. The selected
+EasyTier version is fixed in that plugin release; installed plugins do not query
+the API or silently switch to a newer upstream binary.
 
 ## Troubleshooting
 
@@ -82,4 +88,4 @@ ip link show easytier0
 
 ## License
 
-GPLv3.
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
