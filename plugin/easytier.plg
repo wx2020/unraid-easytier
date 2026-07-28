@@ -4,7 +4,7 @@
 <PLUGIN
   name="easytier"
   author="wx2020"
-  version="2026.07.28.0002"
+  version="2026.07.28.0003"
   launch="Settings/EasyTier"
   pluginURL="https://github.com/wx2020/unraid-easytier/releases/latest/download/easytier.plg"
   support="https://github.com/wx2020/unraid-easytier/issues"
@@ -13,6 +13,14 @@
 
 <CHANGES>
 <![CDATA[
+
+### 2026.07.28.0003
+
+- Added Community Applications repository and plugin metadata
+- Added complete GPLv3 license text
+- Updated plugin support and self-update links
+- Added EasyTier project introduction and official resource links
+- Added automated Community Applications XML validation
 
 ### 2026.07.28.0002
 
@@ -64,8 +72,8 @@ Note: Update the URL and SHA256 for each release
 EasyTier Utils package (PHP files, styles, etc.)
 Note: Update the URL and SHA256 for each release
 -->
-<FILE Name="/boot/config/plugins/easytier/unraid-easytier-utils-2026.07.28.0002-noarch-1.txz">
-<URL>https://github.com/wx2020/unraid-easytier/releases/download/2026.07.28.0002/unraid-easytier-utils-2026.07.28.0002-noarch-1.txz</URL>
+<FILE Name="/boot/config/plugins/easytier/unraid-easytier-utils-2026.07.28.0003-noarch-1.txz">
+<URL>https://github.com/wx2020/unraid-easytier/releases/download/2026.07.28.0003/unraid-easytier-utils-2026.07.28.0003-noarch-1.txz</URL>
 <SHA256>PLACEHOLDER_SHA256</SHA256>
 </FILE>
 
@@ -90,7 +98,7 @@ EASYTIER_ARCHIVE="/boot/config/plugins/easytier/EASYTIER_ASSET"
 unzip -o "$EASYTIER_ARCHIVE" -d /usr/local/emhttp/plugins/easytier/bin
 
 # Extract utils package (PHP files, styles, etc.)
-UTILS_PKG="/boot/config/plugins/easytier/unraid-easytier-utils-2026.07.28.0002-noarch-1.txz"
+UTILS_PKG="/boot/config/plugins/easytier/unraid-easytier-utils-2026.07.28.0003-noarch-1.txz"
 if [ -n "$UTILS_PKG" ]; then
     mkdir -p /tmp/easytier-utils
     tar -xf "$UTILS_PKG" -C /tmp/easytier-utils
@@ -134,7 +142,7 @@ mkdir -p /boot/config/plugins/easytier
 # Cleanup old versions
 find /boot/config/plugins/easytier -name '*.zip' ! -name 'EASYTIER_ASSET' -type f -delete 2>/dev/null || true
 # Keep only the current utils txz file (the one that was just downloaded)
-UTILS_PKG="/boot/config/plugins/easytier/unraid-easytier-utils-2026.07.28.0002-noarch-1.txz"
+UTILS_PKG="/boot/config/plugins/easytier/unraid-easytier-utils-2026.07.28.0003-noarch-1.txz"
 if [ -n "$UTILS_PKG" ]; then
     find /boot/config/plugins/easytier -name '*.txz' ! -name "$(basename "$UTILS_PKG")" -type f -delete 2>/dev/null || true
 fi
@@ -142,7 +150,7 @@ fi
 echo ""
 echo "----------------------------------------------------"
 echo " EasyTier has been installed."
-echo " Version: 2026.07.28.0002"
+echo " Version: 2026.07.28.0003"
 echo "----------------------------------------------------"
 echo ""
 ]]>
