@@ -14,10 +14,21 @@ EasyTier networking plugin for Unraid OS 6.12.14 and later.
 
 ## Installation
 
-Open **Settings > Plugins > Install Plugin** in Unraid and use the PLG asset
-from the latest release:
+### Method 1: Install from the plugin URL (recommended)
+
+1. In Unraid, open **Settings > Plugins > Install Plugin**.
+2. Paste the latest-release plugin URL:
 
 `https://github.com/wx2020/unraid-easytier/releases/latest/download/easytier.plg`
+
+3. Select **Install** and wait for the installation to complete.
+
+### Method 2: Manual installation
+
+1. Open the [latest release](https://github.com/wx2020/unraid-easytier/releases/latest).
+2. Download the `easytier.plg` release asset.
+3. In Unraid, open **Settings > Plugins > Install Plugin**.
+4. Upload the downloaded `easytier.plg` file and select **Install**.
 
 This URL always installs the most recently published plugin release. Changes
 merged to `main` are not available through this URL until the **Build and
