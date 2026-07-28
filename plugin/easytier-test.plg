@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <!DOCTYPE PLUGIN>
-<PLUGIN name="easytier" author="wx2020" version="2026.07.28.0002" launch="Settings/EasyTier" pluginURL="https://github.com/wx2020/unraid-easytier" support="https://github.com/EasyTier/EasyTier" min="6.12.14">
+<PLUGIN name="easytier" author="wx2020" version="2026.07.28.0002" launch="Settings/EasyTier" pluginURL="https://github.com/wx2020/unraid-easytier/releases/latest/download/easytier.plg" support="https://github.com/wx2020/unraid-easytier/issues" min="6.12.14">
 <CHANGES><![CDATA[
 ### 2026.07.28.0002
 Initial release.

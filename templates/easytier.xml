@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Plugin>
+  <Name>EasyTier</Name>
+  <PluginURL>https://github.com/wx2020/unraid-easytier/releases/latest/download/easytier.plg</PluginURL>
+  <Support>https://github.com/wx2020/unraid-easytier/issues</Support>
+  <Project>https://github.com/wx2020/unraid-easytier</Project>
+  <Overview>
+    EasyTier mesh VPN integration for Unraid OS, including WebUI configuration,
+    service management, logging, interface registration, IP forwarding, and
+    peer hostname synchronization.
+  </Overview>
+  <Category>Network:Other</Category>
+  <Icon>https://raw.githubusercontent.com/wx2020/unraid-easytier/main/src/usr/local/emhttp/plugins/easytier/easytier.png</Icon>
+</Plugin>

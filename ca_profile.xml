@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommunityApplications>
+  <Profile>
+    EasyTier plugins and integrations maintained for Unraid OS. This repository
+    provides mesh VPN configuration, service management, logging, interface
+    registration, and peer hostname synchronization.
+  </Profile>
+  <Icon>https://raw.githubusercontent.com/wx2020/unraid-easytier/main/src/usr/local/emhttp/plugins/easytier/easytier.png</Icon>
+  <WebPage>https://github.com/wx2020/unraid-easytier</WebPage>
+  <Forum>https://github.com/wx2020/unraid-easytier/issues</Forum>
+</CommunityApplications>

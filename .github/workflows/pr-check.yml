@@ -20,6 +20,7 @@ jobs:
           ! grep -R "include/easytier-utils" src
           grep -q '<SHA256>PLACEHOLDER_SHA256</SHA256>' plugin/easytier.plg
           grep -q 'EASYTIER_ASSET_URL' plugin/easytier.plg
+          python tests/validate-ca.py
 
       - name: Validate PHP syntax
         shell: bash

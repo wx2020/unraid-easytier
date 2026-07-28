@@ -38,6 +38,7 @@ jobs:
       - name: Validate source
         shell: bash
         run: |
+          python tests/validate-ca.py
           find src -type f -name '*.php' -print0 | xargs -0 -n1 php -l
           find src -type f \( -name '*.sh' -o -name 'rc.easytier' \) -print0 |
             xargs -0 -n1 sh -n
