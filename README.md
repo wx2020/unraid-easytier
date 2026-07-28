@@ -87,6 +87,15 @@ builds the utils package, and generates the installable PLG files. The selected
 EasyTier version is fixed in that plugin release; installed plugins do not query
 the API or silently switch to a newer upstream binary.
 
+## Community Applications
+
+The repository includes `ca_profile.xml` and `templates/easytier.xml` for
+submission to Unraid Community Applications. The CA entry installs the
+generated `easytier.plg` asset from the latest GitHub release.
+
+Plugin support and issue reports are handled through
+[GitHub Issues](https://github.com/wx2020/unraid-easytier/issues).
+
 ## Troubleshooting
 
 ```bash

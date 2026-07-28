@@ -6,8 +6,8 @@
   author="wx2020"
   version="2026.07.28.0002"
   launch="Settings/EasyTier"
-  pluginURL="https://raw.githubusercontent.com/wx2020/unraid-easytier/main/plugin/easytier.plg"
-  support="https://github.com/EasyTier/EasyTier"
+  pluginURL="https://github.com/wx2020/unraid-easytier/releases/latest/download/easytier.plg"
+  support="https://github.com/wx2020/unraid-easytier/issues"
   min="6.12.14"
 >
 
