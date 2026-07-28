@@ -1,7 +1,7 @@
 {
     "name": "easytier",
     "author": "EasyTier Community",
-    "version": "2026.07.28.0002",
+    "version": "2026.07.28.0003",
     "description": "EasyTier networking plugin for Unraid",
     "launch": "Settings/EasyTier",
     "category": "Network",

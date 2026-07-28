@@ -2,6 +2,28 @@
 
 EasyTier networking plugin for Unraid OS 6.12.14 and later.
 
+## About EasyTier
+
+[EasyTier](https://github.com/EasyTier/EasyTier) is a simple, secure, and
+decentralized mesh VPN powered by Rust and Tokio. It connects devices and
+networks across NAT boundaries without requiring a traditional centralized VPN
+gateway. EasyTier supports peer-to-peer NAT traversal, subnet proxying,
+intelligent routing, encrypted tunnels, and multiple transport protocols.
+
+This repository is an independent Unraid integration. It packages the upstream
+EasyTier CLI binaries and provides Unraid-specific installation, WebUI
+configuration, service management, logging, interface registration, and
+maintenance.
+
+### EasyTier Resources
+
+- [Official website](https://easytier.cn/)
+- [Upstream project](https://github.com/EasyTier/EasyTier)
+- [English documentation](https://easytier.cn/en/guide/introduction.html)
+- [Chinese documentation](https://easytier.cn/guide/introduction.html)
+- [Web Console](https://easytier.cn/web/)
+- [Upstream releases](https://github.com/EasyTier/EasyTier/releases)
+
 ## Features
 
 - Start, stop, and automatically recover `easytier-core`
@@ -77,8 +99,8 @@ Push a version tag matching the release version, or run the **Build and
 Release** workflow with an explicit version:
 
 ```bash
-git tag 2026.07.28.0002
-git push origin 2026.07.28.0002
+git tag 2026.07.28.0003
+git push origin 2026.07.28.0003
 ```
 
 The workflow queries the EasyTier GitHub Releases API for the latest stable
