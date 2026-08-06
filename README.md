@@ -64,7 +64,7 @@ workflow, so the template itself is not an installable release artifact.
 
 ## Configuration
 
-After installation, open **Settings > EasyTier**.
+After installation, open **Settings > Network Services > EasyTier**.
 
 - **Enable EasyTier** controls whether the service starts.
 - **Include Interface in Unraid** adds `easytier0` to Unraid network settings.
@@ -101,8 +101,8 @@ Push a version tag matching the release version, or run the **Build and
 Release** workflow with an explicit version:
 
 ```bash
-git tag 2026.07.28.0003
-git push origin 2026.07.28.0003
+git tag 2026.08.06.0001
+git push origin 2026.08.06.0001
 ```
 
 The workflow queries the EasyTier GitHub Releases API for the latest stable
