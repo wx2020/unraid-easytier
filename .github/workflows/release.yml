@@ -8,7 +8,7 @@ on:
       version:
         description: Version
         required: true
-        default: '2026.08.06.0001'
+        default: '2026.08.06.0002'
 
 permissions:
   contents: write

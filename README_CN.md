@@ -94,8 +94,8 @@ Pull Request 会检查 PHP 和 Shell 语法、元数据一致性、软件包内�
 推送与发布版本一致的版本标签，或在 **Build and Release** 工作流中指定版本：
 
 ```bash
-git tag 2026.08.06.0001
-git push origin 2026.08.06.0001
+git tag 2026.08.06.0002
+git push origin 2026.08.06.0002
 ```
 
 工作流会通过 EasyTier GitHub Releases API 查询最新的稳定版 Linux x86_64
