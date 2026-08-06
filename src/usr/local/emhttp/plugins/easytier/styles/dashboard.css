@@ -1,0 +1,34 @@
+/*
+    Copyright (C) 2026  EasyTier Community
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+*/
+
+.node-output {
+    margin: 0;
+    padding: 15px;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.node-info-empty {
+    color: inherit;
+    opacity: 0.8;
+}
+
+.node-info-source {
+    margin-top: 8px;
+    color: inherit;
+    opacity: 0.7;
+    font-size: 12px;
+}

@@ -8,7 +8,7 @@ $_GET = [];
 require_once '/usr/local/emhttp/plugins/easytier/include/page.php';
 
 $entryPages = [
-    'EasyTier.page' => 'Server Configuration',
+    'EasyTier.page' => 'EasyTier Node Status',
     'EasyTier-1-Settings.page' => 'Server Configuration',
     'EasyTier-2-Logs.page' => 'EasyTier Logs',
 ];
@@ -24,6 +24,11 @@ foreach ($entryPages as $entryPage => $expectedText) {
 $settings = \EasyTier\getPage('Settings', false);
 if (!str_contains($settings, 'Server Configuration') || !str_contains($settings, 'serverForm')) {
     throw new RuntimeException('Settings page did not render expected content.');
+}
+
+$dashboard = \EasyTier\getPage('Dashboard', false);
+if (!str_contains($dashboard, 'EasyTier Node Status') || !str_contains($dashboard, 'easytier-cli node')) {
+    throw new RuntimeException('Dashboard page did not render expected content.');
 }
 
 $logs = \EasyTier\getPage('Logs', false);
