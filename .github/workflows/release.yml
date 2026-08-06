@@ -58,6 +58,15 @@ jobs:
           bash build.sh
           echo "PKG_FILE=unraid-easytier-utils-${VERSION}-noarch-1.txz" >> "$GITHUB_ENV"
 
+      - name: Build Chinese language pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p language-pack/zh_CN/EasyTier
+          cp translations/zh_CN/EasyTier/easytier.txt language-pack/zh_CN/EasyTier/
+          (cd language-pack/zh_CN && zip -q -r ../../easytier-zh_CN.zip EasyTier)
+          test -s easytier-zh_CN.zip
+
       - name: Resolve latest EasyTier release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -118,4 +127,5 @@ jobs:
             ${{ env.PKG_FILE }}.sha256
             easytier-${{ env.VERSION }}.plg
             easytier.plg
+            easytier-zh_CN.zip
             checksums.txt

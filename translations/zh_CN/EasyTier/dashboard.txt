@@ -1,5 +1,0 @@
-EasyTier=EasyTier
-EasyTier Node Status=EasyTier 节点状态
-EasyTier is not running Start the service from the Settings tab=EasyTier 未运行。请在“设置”选项卡中启动服务。
-EasyTier is running, but no node information is available yet=EasyTier 正在运行，但暂时没有可用的节点信息。
-Source=来源：
