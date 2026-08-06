@@ -17,11 +17,12 @@ loaded by Unraid's `parse_plugin('easytier')` call, so all EasyTier strings
 belong in this single file. `translations/en_US/EasyTier/` is the English
 master set, and the Chinese file is under `translations/zh_CN/EasyTier/`.
 
-To test the Chinese translation in Unraid, create `zh_CN.zip` with
+The generated plugin release automatically downloads this file into
+`/usr/local/emhttp/languages/zh_CN/easytier.txt` during installation or
+upgrade. For an older installation, create `zh_CN.zip` with
 `EasyTier/easytier.txt` from `translations/zh_CN/` as its only entry, then
 upload it from **Tools > webGUI > Language** in developer view. Unraid stores
-language-pack entries by basename, so this becomes
-`/usr/local/emhttp/languages/zh_CN/easytier.txt`.
+language-pack entries by basename.
 
-The release workflow also publishes a ready-to-upload
-`easytier-zh_CN.zip` asset.
+The release workflow publishes both the automatically used text file and a
+ready-to-upload `easytier-zh_CN.zip` asset.

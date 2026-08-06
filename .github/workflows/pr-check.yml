@@ -19,6 +19,9 @@ jobs:
           grep -q "version=\"${VERSION}\"" plugin/easytier.plg
           ! grep -R "include/easytier-utils" src
           grep -q '<SHA256>PLACEHOLDER_SHA256</SHA256>' plugin/easytier.plg
+          grep -q 'EASYTIER_ZH_CN_URL' plugin/easytier.plg
+          grep -q 'EASYTIER_ZH_CN_SHA256' plugin/easytier.plg
+          test -s translations/zh_CN/EasyTier/easytier.txt
           grep -q 'EASYTIER_ASSET_URL' plugin/easytier.plg
           python tests/validate-ca.py
 

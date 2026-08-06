@@ -81,6 +81,15 @@ Note: Update the URL and SHA256 for each release
 </FILE>
 
 <!--
+EasyTier Chinese translation
+The release workflow publishes this file and replaces both placeholders.
+-->
+<FILE Name="/usr/local/emhttp/languages/zh_CN/easytier.txt">
+<URL>EASYTIER_ZH_CN_URL</URL>
+<SHA256>EASYTIER_ZH_CN_SHA256</SHA256>
+</FILE>
+
+<!--
 EasyTier Utils package (PHP files, styles, etc.)
 Note: Update the URL and SHA256 for each release
 -->
@@ -184,6 +193,7 @@ rm -rf /usr/local/emhttp/plugins/easytier
 rm -rf /usr/local/php/easytier-utils
 rm -f /etc/rc.d/rc.easytier /etc/cron.daily/easytier-daily
 rm -f /etc/sysctl.d/99-easytier.conf
+rm -f /usr/local/emhttp/languages/zh_CN/easytier.txt
 rm -f /boot/config/plugins/easytier/*.zip
 ]]>
 </INLINE>
