@@ -27,4 +27,4 @@ require_once '/usr/local/emhttp/plugins/easytier/include/page.php';
 
 use function EasyTier\getPage;
 
-echo getPage('Settings');
+echo getPage('Dashboard');

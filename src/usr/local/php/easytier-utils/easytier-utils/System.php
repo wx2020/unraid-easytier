@@ -74,6 +74,34 @@ class System extends \EDACerton\PluginUtils\System
         return $peers;
     }
 
+    /**
+     * @return array<string>
+     */
+    public static function isRunning(): bool
+    {
+        if (!is_executable('/usr/bin/pgrep')) {
+            return false;
+        }
+
+        return Utils::runwrap(
+            '/usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/easytier-core"',
+            false,
+            false
+        ) !== [];
+    }
+
+    /**
+     * @return array<string>
+     */
+    public static function getNodeOutput(): array
+    {
+        if (!is_executable('/usr/local/sbin/easytier-cli')) {
+            return [];
+        }
+
+        return Utils::runwrap('/usr/local/sbin/easytier-cli node', false, false);
+    }
+
     public static function checkWebgui(Config $config, string $easytier_ipv4, bool $allowRestart): bool
     {
         // Make certain that the WebGUI is listening on the EasyTier interface
