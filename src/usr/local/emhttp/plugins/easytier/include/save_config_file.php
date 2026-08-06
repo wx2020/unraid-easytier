@@ -34,28 +34,28 @@ try {
 
     // Validate inputs
     if (empty($tab) || empty($file_path)) {
-        throw new \Exception('Missing required parameters');
+        throw new \Exception(translate('Missing required parameters'));
     }
 
     $allowedFiles = [
         'main' => '/boot/config/plugins/easytier/easytier.cfg',
     ];
     if (!isset($allowedFiles[$tab]) || !hash_equals($allowedFiles[$tab], $file_path)) {
-        throw new \Exception('Invalid file path');
+        throw new \Exception(translate('Invalid file path'));
     }
 
     // Ensure directory exists
     $dir = dirname($file_path);
     if (!is_dir($dir)) {
         if (!mkdir($dir, 0755, true)) {
-            throw new \Exception('Failed to create directory');
+            throw new \Exception(translate('Failed to create directory'));
         }
     }
 
     // Write content to file
     $result = file_put_contents($file_path, $config_content, LOCK_EX);
     if ($result === false) {
-        throw new \Exception('Failed to write to file');
+        throw new \Exception(translate('Failed to write to file'));
     }
 
     // Set proper permissions
@@ -73,7 +73,7 @@ try {
     // Return success
     echo json_encode([
         'success' => true,
-        'message' => 'Configuration file saved successfully',
+        'message' => translate('Configuration file saved successfully'),
         'file' => $file_path
     ]);
 

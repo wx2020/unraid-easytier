@@ -23,22 +23,22 @@ $e = $e ?? null;
 
 ?>
 
-<table class="unraid tablesorter"><thead><tr><td>Error</td></tr></thead></table>
+<table class="unraid tablesorter"><thead><tr><td><?= translate('Error') ?></td></tr></thead></table>
 
 <dl>
     <dt></dt>
     <dd>
         <div class="error">
-            <strong>An error occurred:</strong><br>
+            <strong><?= translate('An error occurred:') ?></strong><br>
             <?php if ($e): ?>
                 <?= htmlspecialchars($e->getMessage()) ?>
             <?php else: ?>
-                Unknown error
+                <?= translate('Unknown error') ?>
             <?php endif; ?>
         </div>
     </dd>
 </dl>
 
 <blockquote class='inline_help'>
-    Please check /var/log/easytier-error.log for more details.
+    <?= translate('Please check /var/log/easytier-error.log for more details.') ?>
 </blockquote>

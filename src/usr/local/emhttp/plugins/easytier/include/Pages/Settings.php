@@ -28,9 +28,9 @@ $config = $config ?? new Config();
 // Define config files and their paths
 $config_files = [
     'main' => [
-        'name' => 'Main Config',
+        'name' => translate('Main Config'),
         'path' => '/boot/config/plugins/easytier/easytier.cfg',
-        'description' => 'Main EasyTier configuration file'
+        'description' => translate('Main EasyTier configuration file')
     ],
 ];
 
@@ -60,107 +60,113 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($GLOBALS['var']['csrf_token']) ?>">
 <?php endif; ?>
 
-<table class="unraid tablesorter"><thead><tr><td>Server Configuration</td></tr></thead></table>
+<table class="unraid tablesorter"><thead><tr><td><?= translate('Server Configuration') ?></td></tr></thead></table>
 
 <dl>
-    <dt>Enable EasyTier</dt>
+    <dt><?= translate('Enable EasyTier') ?></dt>
     <dd>
         <select name='ENABLE_EASYTIER' size='1' class='narrow'>
-            <?= Utils::make_option($config->Enable, '1', 'Yes');?>
-            <?= Utils::make_option( ! $config->Enable, '0', 'No');?>
+            <?= Utils::make_option($config->Enable, '1', translate('Yes'));?>
+            <?= Utils::make_option( ! $config->Enable, '0', translate('No'));?>
         </select>
     </dd>
 </dl>
-<blockquote class='inline_help'>Enable or disable the EasyTier service.</blockquote>
+<blockquote class='inline_help'><?= translate('Enable or disable the EasyTier service.') ?></blockquote>
 
 <dl>
-    <dt>Include Interface in Unraid</dt>
+    <dt><?= translate('Include Interface in Unraid') ?></dt>
     <dd><select name="INCLUDE_INTERFACE" class="narrow">
-        <?= Utils::make_option($config->IncludeInterface, '1', 'Yes') ?>
-        <?= Utils::make_option(!$config->IncludeInterface, '0', 'No') ?>
+        <?= Utils::make_option($config->IncludeInterface, '1', translate('Yes')) ?>
+        <?= Utils::make_option(!$config->IncludeInterface, '0', translate('No')) ?>
     </select></dd>
 </dl>
 
 <dl>
-    <dt>Enable IP Forwarding</dt>
+    <dt><?= translate('Enable IP Forwarding') ?></dt>
     <dd><select name="SYSCTL_IP_FORWARD" class="narrow">
-        <?= Utils::make_option($config->IPForward, '1', 'Yes') ?>
-        <?= Utils::make_option(!$config->IPForward, '0', 'No') ?>
+        <?= Utils::make_option($config->IPForward, '1', translate('Yes')) ?>
+        <?= Utils::make_option(!$config->IPForward, '0', translate('No')) ?>
     </select></dd>
 </dl>
 
 <dl>
-    <dt>Add Peers to Hosts</dt>
+    <dt><?= translate('Add Peers to Hosts') ?></dt>
     <dd><select name="ADD_PEERS_TO_HOSTS" class="narrow">
-        <?= Utils::make_option($config->AddPeersToHosts, '1', 'Yes') ?>
-        <?= Utils::make_option(!$config->AddPeersToHosts, '0', 'No') ?>
+        <?= Utils::make_option($config->AddPeersToHosts, '1', translate('Yes')) ?>
+        <?= Utils::make_option(!$config->AddPeersToHosts, '0', translate('No')) ?>
     </select></dd>
 </dl>
 
 <dl>
-    <dt>Network Name</dt>
+    <dt><?= translate('Network Name') ?></dt>
     <dd>
         <input type="text" name="NETWORK_NAME" value="<?= htmlspecialchars($config->NetworkName) ?>" placeholder="my-network">
     </dd>
 </dl>
-<blockquote class='inline_help'>The name of the EasyTier network to join.</blockquote>
+<blockquote class='inline_help'><?= translate('The name of the EasyTier network to join.') ?></blockquote>
 
 <dl>
-    <dt>Network Secret</dt>
+    <dt><?= translate('Network Secret') ?></dt>
     <dd>
-        <input type="password" name="NETWORK_SECRET" value="<?= htmlspecialchars($config->NetworkSecret) ?>" placeholder="optional">
+        <input type="password" name="NETWORK_SECRET" value="<?= htmlspecialchars($config->NetworkSecret) ?>" placeholder="<?= htmlspecialchars(translate('optional')) ?>">
     </dd>
 </dl>
-<blockquote class='inline_help'>The secret key for the EasyTier network (optional).</blockquote>
+<blockquote class='inline_help'><?= translate('The secret key for the EasyTier network (optional).') ?></blockquote>
 
 <dl>
-    <dt>Server Address</dt>
+    <dt><?= translate('Config Server Address') ?></dt>
     <dd>
-        <input type="text" name="SERVER_ADDRESS" value="<?= htmlspecialchars($config->ServerAddress ?? '') ?>" placeholder="udp://easytier.example.com:11010">
+        <input type="text" name="SERVER_ADDRESS" value="<?= htmlspecialchars($config->ServerAddress ?? '') ?>" placeholder="udp://easytier.example.com:22020/username">
     </dd>
 </dl>
-<blockquote class='inline_help'>Public EasyTier server address to connect to. Format: protocol://host:port</blockquote>
+<blockquote class='inline_help'>
+    <?= translate('EasyTier configuration server passed as') ?> <code>-w</code>.
+    <?= translate('Format: protocol://host:port/username') ?>
+</blockquote>
 
 <div class="advanced">
     <dl>
-        <dt>Protocol</dt>
+        <dt><?= translate('Protocol') ?></dt>
         <dd>
             <select name='PROTOCOL' size='1' class='narrow'>
-                <?= Utils::make_option($config->Protocol === 'udp', 'udp', 'UDP');?>
-                <?= Utils::make_option($config->Protocol === 'tcp', 'tcp', 'TCP');?>
-                <?= Utils::make_option($config->Protocol === 'ws', 'ws', 'WebSocket');?>
-                <?= Utils::make_option($config->Protocol === 'wss', 'wss', 'Secure WebSocket');?>
+                <?= Utils::make_option($config->Protocol === 'udp', 'udp', translate('UDP'));?>
+                <?= Utils::make_option($config->Protocol === 'tcp', 'tcp', translate('TCP'));?>
+                <?= Utils::make_option($config->Protocol === 'ws', 'ws', translate('WebSocket'));?>
+                <?= Utils::make_option($config->Protocol === 'wss', 'wss', translate('Secure WebSocket'));?>
             </select>
         </dd>
     </dl>
-    <blockquote class='inline_help'>The protocol to use for EasyTier connections.</blockquote>
+    <blockquote class='inline_help'><?= translate('The protocol to use for EasyTier connections.') ?></blockquote>
 
     <dl>
-        <dt>Listener Address</dt>
+        <dt><?= translate('Listener Address') ?></dt>
         <dd>
             <input type="text" name="LISTENER" value="<?= htmlspecialchars($config->Listener) ?>" placeholder="0.0.0.0:11010">
         </dd>
     </dl>
-    <blockquote class='inline_help'>The address and port for EasyTier to listen on. Format: IP:PORT</blockquote>
+    <blockquote class='inline_help'>
+        <?= translate('The address and port for EasyTier to listen on.') ?>
+        <?= translate('Format: IP:PORT') ?>
+    </blockquote>
 
     <dl>
-        <dt>RPC Port</dt>
+        <dt><?= translate('RPC Port') ?></dt>
         <dd>
             <input type="text" name="RPC_PORT" value="<?= htmlspecialchars($config->RpcPort) ?>" placeholder="15888">
         </dd>
     </dl>
-    <blockquote class='inline_help'>Port for the management RPC interface.</blockquote>
+    <blockquote class='inline_help'><?= translate('Port for the management RPC interface.') ?></blockquote>
 
     <dl>
-        <dt>Hostname</dt>
+        <dt><?= translate('Hostname') ?></dt>
         <dd>
             <input type="text" name="HOSTNAME" value="<?= htmlspecialchars($config->Hostname) ?>" placeholder="auto">
         </dd>
     </dl>
-    <blockquote class='inline_help'>Hostname for this EasyTier instance (optional).</blockquote>
+    <blockquote class='inline_help'><?= translate('Hostname for this EasyTier instance (optional).') ?></blockquote>
 
     <dl>
-        <dt>SOCKS5 Listen Port</dt>
+        <dt><?= translate('SOCKS5 Listen Port') ?></dt>
         <dd><input type="number" min="1" max="65535" name="PROXY"
                    value="<?= htmlspecialchars($config->Proxy) ?>" placeholder="1080"></dd>
     </dl>
@@ -169,8 +175,8 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
 <dl>
     <dt></dt>
     <dd>
-        <button type='button' onclick='applyServerSettings()'>Apply Settings</button>
-        <button type='button' onclick='restartService()'>Restart Service</button>
+        <button type='button' onclick='applyServerSettings()'><?= translate('Apply Settings') ?></button>
+        <button type='button' onclick='restartService()'><?= translate('Restart Service') ?></button>
     </dd>
 </dl>
 
@@ -178,7 +184,7 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
 
 <!-- Configuration Files Tabs Section -->
 <br>
-<table class="unraid tablesorter"><thead><tr><td>Configuration Files</td></tr></thead></table>
+<table class="unraid tablesorter"><thead><tr><td><?= translate('Configuration Files') ?></td></tr></thead></table>
 
 <!-- Tab Navigation -->
 <div class="config-tabs">
@@ -196,7 +202,7 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
         <strong><?= htmlspecialchars($config_files[$current_tab]['name']) ?></strong> -
         <?= htmlspecialchars($config_files[$current_tab]['description']) ?>
         <br>
-        <small>File: <?= htmlspecialchars($config_files[$current_tab]['path']) ?></small>
+        <small><?= translate('File:') ?> <?= htmlspecialchars($config_files[$current_tab]['path']) ?></small>
     </div>
 
     <form method="POST" action="/plugins/easytier/include/save_config_file.php" id="configFileForm">
@@ -209,14 +215,24 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
                   spellcheck="false"><?= htmlspecialchars($config_content) ?></textarea>
 
         <div class="editor-actions">
-            <button type='button' onclick='saveConfigFile()'>Save Configuration</button>
-            <button type='button' onclick='resetConfigFile()'>Reset</button>
-            <button type='button' onclick='downloadConfigFile()'>Download</button>
+            <button type='button' onclick='saveConfigFile()'><?= translate('Save Configuration') ?></button>
+            <button type='button' onclick='resetConfigFile()'><?= translate('Reset') ?></button>
+            <button type='button' onclick='downloadConfigFile()'><?= translate('Download') ?></button>
         </div>
     </form>
 </div>
 
 <script>
+const easytierI18n = <?= json_encode([
+    'restartConfirm' => translate('Are you sure you want to restart the EasyTier service?'),
+    'restartFailed' => translate('Restart request failed'),
+    'configSaved' => translate('Configuration file saved successfully!'),
+    'configSaveError' => translate('Error saving configuration:'),
+    'unknownError' => translate('Unknown error'),
+    'error' => translate('Error:'),
+    'resetConfirm' => translate('Are you sure you want to reset to the last saved version?'),
+], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
+
 function switchTab(tabId) {
     const url = new URL(window.location);
     url.searchParams.set('tab', tabId);
@@ -228,7 +244,7 @@ function applyServerSettings() {
 }
 
 function restartService() {
-    if (confirm("Are you sure you want to restart the EasyTier service?")) {
+    if (confirm(easytierI18n.restartConfirm)) {
         const body = new URLSearchParams({
             csrf_token: '<?= htmlspecialchars($GLOBALS['var']['csrf_token'] ?? '') ?>'
         });
@@ -237,7 +253,7 @@ function restartService() {
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body
         }).then(response => {
-            if (!response.ok) throw new Error('Restart request failed');
+            if (!response.ok) throw new Error(easytierI18n.restartFailed);
             return response.text();
         }).then(message => alert(message)).catch(error => alert(error));
     }
@@ -254,18 +270,18 @@ function saveConfigFile() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Configuration file saved successfully!');
+            alert(easytierI18n.configSaved);
         } else {
-            alert('Error saving configuration: ' + (data.error || 'Unknown error'));
+            alert(easytierI18n.configSaveError + ' ' + (data.error || easytierI18n.unknownError));
         }
     })
     .catch(error => {
-        alert('Error: ' + error);
+        alert(easytierI18n.error + ' ' + error);
     });
 }
 
 function resetConfigFile() {
-    if (confirm('Are you sure you want to reset to the last saved version?')) {
+    if (confirm(easytierI18n.resetConfirm)) {
         location.reload();
     }
 }

@@ -26,18 +26,18 @@ $node_output = $node_running ? System::getNodeOutput() : [];
 
 <link type="text/css" rel="stylesheet" href="/plugins/easytier/styles/dashboard.css">
 
-<table class="unraid tablesorter"><thead><tr><td>EasyTier Node Status</td></tr></thead></table>
+<table class="unraid tablesorter"><thead><tr><td><?= translate('EasyTier Node Status') ?></td></tr></thead></table>
 
 <?php if ($node_output !== []): ?>
     <pre id="nodeOutput" class="node-output"><?= htmlspecialchars(implode(PHP_EOL, $node_output)) ?></pre>
 <?php elseif (!$node_running): ?>
     <div class="node-info-empty">
-        EasyTier is not running. Start the service from the Settings tab.
+        <?= translate('EasyTier is not running. Start the service from the Settings tab.') ?>
     </div>
 <?php else: ?>
     <div class="node-info-empty">
-        EasyTier is running, but no node information is available yet.
+        <?= translate('EasyTier is running, but no node information is available yet.') ?>
     </div>
 <?php endif; ?>
 
-<p class="node-info-source">Source: <code>easytier-cli node</code></p>
+<p class="node-info-source"><?= translate('Source:') ?> <code>easytier-cli node</code></p>

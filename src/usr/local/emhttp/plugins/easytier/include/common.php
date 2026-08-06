@@ -28,6 +28,17 @@ require_once "/usr/local/php/easytier-utils/bootstrap.php";
 $utils = new Utils(PLUGIN_NAME);
 $utils->setPHPDebug();
 
+/**
+ * Translate plugin text through Unraid's language system.
+ *
+ * The fallback keeps the pages and command responses usable outside the
+ * Unraid webGUI, including the render tests.
+ */
+function translate(string $text): string
+{
+    return function_exists('_') ? \_($text) : $text;
+}
+
 function requireCsrfToken(?string $token): void
 {
     $varFile = '/var/local/emhttp/var.ini';
@@ -36,6 +47,6 @@ function requireCsrfToken(?string $token): void
 
     if (!is_string($token) || $expected === '' || !hash_equals($expected, $token)) {
         http_response_code(403);
-        throw new \RuntimeException('Invalid CSRF token');
+        throw new \RuntimeException(translate('Invalid CSRF token'));
     }
 }

@@ -29,7 +29,7 @@ class Config
     // EasyTier specific settings
     public string $NetworkName;
     public string $NetworkSecret;
-    public string $ServerAddress;  // Public server address to connect to
+    public string $ServerAddress;  // Config server address to connect to
     public string $Protocol;       // 'udp', 'tcp', 'ws', 'wss'
     public string $Listener;       // Listener address (e.g., '0.0.0.0:11010')
     public string $Proxy;          // SOCKS5 proxy address
