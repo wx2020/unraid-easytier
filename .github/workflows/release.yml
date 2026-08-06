@@ -62,9 +62,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          cp translations/zh_CN/EasyTier/easytier.txt easytier-zh_CN.txt
+          ZH_CN_SHA256="$(sha256sum easytier-zh_CN.txt | awk '{print $1}')"
+          echo "EASYTIER_ZH_CN_SHA256=${ZH_CN_SHA256}" >> "$GITHUB_ENV"
+          echo "EASYTIER_ZH_CN_URL=https://github.com/wx2020/unraid-easytier/releases/download/${VERSION}/easytier-zh_CN.txt" >> "$GITHUB_ENV"
           mkdir -p language-pack/zh_CN/EasyTier
-          cp translations/zh_CN/EasyTier/easytier.txt language-pack/zh_CN/EasyTier/
+          cp easytier-zh_CN.txt language-pack/zh_CN/EasyTier/easytier.txt
           (cd language-pack/zh_CN && zip -q -r ../../easytier-zh_CN.zip EasyTier)
+          test -s easytier-zh_CN.txt
           test -s easytier-zh_CN.zip
 
       - name: Resolve latest EasyTier release
@@ -110,10 +115,13 @@ jobs:
             -e "s|EASYTIER_ASSET_URL|${EASYTIER_ASSET_URL}|g" \
             -e "s/EASYTIER_ASSET_SHA256/${EASYTIER_ASSET_SHA256}/g" \
             -e "s/EASYTIER_ASSET/${EASYTIER_ASSET}/g" \
+            -e "s|EASYTIER_ZH_CN_URL|${EASYTIER_ZH_CN_URL}|g" \
+            -e "s/EASYTIER_ZH_CN_SHA256/${EASYTIER_ZH_CN_SHA256}/g" \
             plugin/easytier.plg > "easytier-${VERSION}.plg"
           cp "easytier-${VERSION}.plg" easytier.plg
           ! grep -q PLACEHOLDER_SHA256 easytier.plg
           ! grep -q EASYTIER_ASSET easytier.plg
+          ! grep -q EASYTIER_ZH_CN_ easytier.plg
           printf '%s  %s\n' "${SHA256}" "${PKG_FILE}" > checksums.txt
 
       - uses: softprops/action-gh-release@v2
@@ -127,5 +135,6 @@ jobs:
             ${{ env.PKG_FILE }}.sha256
             easytier-${{ env.VERSION }}.plg
             easytier.plg
+            easytier-zh_CN.txt
             easytier-zh_CN.zip
             checksums.txt
