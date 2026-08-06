@@ -22,6 +22,23 @@ namespace EasyTier;
 define(__NAMESPACE__ . "\PLUGIN_ROOT", dirname(dirname(__FILE__)));
 define(__NAMESPACE__ . "\PLUGIN_NAME", "easytier");
 
+/*
+ * Unraid's webGUI loads translations for the current request URI.  The
+ * plugin also renders API messages and page fragments that are not tied to
+ * that URI, so load the merged plugin language file explicitly.
+ */
+function loadTranslations(): void
+{
+    static $loaded = false;
+
+    if (!$loaded && function_exists('parse_plugin')) {
+        \parse_plugin(PLUGIN_NAME);
+        $loaded = true;
+    }
+}
+
+loadTranslations();
+
 // Try to load composer autoloader first, fallback to manual loading
 require_once "/usr/local/php/easytier-utils/bootstrap.php";
 
@@ -36,6 +53,7 @@ $utils->setPHPDebug();
  */
 function translate(string $text): string
 {
+    loadTranslations();
     return function_exists('_') ? \_($text) : $text;
 }
 

@@ -1,5 +1,0 @@
-EasyTier=
-EasyTier Node Status=
-EasyTier is not running Start the service from the Settings tab=
-EasyTier is running, but no node information is available yet=
-Source=
