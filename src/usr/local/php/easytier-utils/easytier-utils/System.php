@@ -219,7 +219,7 @@ class System extends \EDACerton\PluginUtils\System
         }
 
         if (!empty($config->ServerAddress)) {
-            $params[] = '--peers';
+            $params[] = '-w';
             $params[] = $config->ServerAddress;
         }
 

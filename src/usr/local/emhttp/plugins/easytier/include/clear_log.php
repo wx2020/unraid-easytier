@@ -29,7 +29,7 @@ try {
     $json_input = file_get_contents('php://input');
     $data = json_decode($json_input, true);
     if (!is_array($data)) {
-        throw new \Exception('Invalid JSON request');
+        throw new \Exception(translate('Invalid JSON request'));
     }
     requireCsrfToken($data['csrf_token'] ?? null);
 
@@ -37,23 +37,23 @@ try {
 
     // Validate input
     if (empty($log_file)) {
-        throw new \Exception('Missing log file parameter');
+        throw new \Exception(translate('Missing log file parameter'));
     }
 
     // Security check: ensure file path is the allowed log file
     if ($log_file !== '/var/log/easytier.log') {
-        throw new \Exception('Invalid log file path');
+        throw new \Exception(translate('Invalid log file path'));
     }
 
     // Check if file exists
     if (!file_exists($log_file)) {
-        throw new \Exception('Log file does not exist');
+        throw new \Exception(translate('Log file does not exist'));
     }
 
     // Clear the file
     $result = file_put_contents($log_file, '');
     if ($result === false) {
-        throw new \Exception('Failed to clear log file');
+        throw new \Exception(translate('Failed to clear log file'));
     }
 
     // Log the action
@@ -68,7 +68,7 @@ try {
     // Return success
     echo json_encode([
         'success' => true,
-        'message' => 'Log file cleared successfully',
+        'message' => translate('Log file cleared successfully'),
         'file' => $log_file
     ]);
 

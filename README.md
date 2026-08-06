@@ -70,8 +70,8 @@ After installation, open **Settings > Network Services > EasyTier**.
 - **Include Interface in Unraid** adds `easytier0` to Unraid network settings.
 - **Enable IP Forwarding** installs the plugin sysctl configuration.
 - **Add Peers to Hosts** updates a marked block in `/etc/hosts` each day.
-- **Server Address** accepts an EasyTier peer URL such as
-  `udp://peer.example.com:11010`.
+- **Config Server Address** is passed to EasyTier as `-w` (`--config-server`),
+  for example `udp://easytier.example.com:22020/username`.
 - **Listener Address** accepts `IP:PORT`; the selected protocol is prepended.
 - **SOCKS5 Listen Port** enables EasyTier's SOCKS5 server when set.
 

@@ -51,7 +51,7 @@ if (file_exists($log_file)) {
     }
     $log_content = implode('', array_slice($log_lines, 0, -1));
 } else {
-    $log_content = "# Log file does not exist: {$log_file}\n# Logs will appear here once EasyTier is running.";
+    $log_content = '# ' . translate('Log file does not exist') . ": {$log_file}\n# " . translate('Logs will appear here once EasyTier is running.');
 }
 
 // Get file size if exists
@@ -62,20 +62,20 @@ $file_modified = file_exists($log_file) ? date('Y-m-d H:i:s', filemtime($log_fil
 
 <link type="text/css" rel="stylesheet" href="/plugins/easytier/styles/logs.css">
 
-<table class="unraid tablesorter"><thead><tr><td>EasyTier Logs</td></tr></thead></table>
+<table class="unraid tablesorter"><thead><tr><td><?= translate('EasyTier Logs') ?></td></tr></thead></table>
 
 <!-- Log File Controls -->
 <div class="log-controls">
     <div class="log-info">
-        <strong>File:</strong> <?= htmlspecialchars($log_file) ?>
+        <strong><?= translate('File:') ?></strong> <?= htmlspecialchars($log_file) ?>
         <span class="separator">|</span>
-        <strong>Size:</strong> <?= htmlspecialchars($file_size) ?>
+        <strong><?= translate('Size:') ?></strong> <?= htmlspecialchars($file_size) ?>
         <span class="separator">|</span>
-        <strong>Modified:</strong> <?= htmlspecialchars($file_modified) ?>
+        <strong><?= translate('Modified:') ?></strong> <?= htmlspecialchars($file_modified) ?>
     </div>
 
     <div class="line-selector">
-        <label for="lineCount">Lines:</label>
+        <label for="lineCount"><?= translate('Lines:') ?></label>
         <select id="lineCount" onchange="changeLineCount(this.value)">
             <?= Utils::make_option($lines === 50, '50', '50') ?>
             <?= Utils::make_option($lines === 100, '100', '100') ?>
@@ -86,10 +86,10 @@ $file_modified = file_exists($log_file) ? date('Y-m-d H:i:s', filemtime($log_fil
     </div>
 
     <div class="log-actions">
-        <button type="button" onclick="refreshLogs()">Refresh</button>
-        <button type="button" onclick="clearLogs()">Clear Log</button>
-        <button type="button" onclick="downloadLog()">Download</button>
-        <button type="button" onclick="toggleAutoRefresh()" id="autoRefreshBtn">Auto Refresh: Off</button>
+        <button type="button" onclick="refreshLogs()"><?= translate('Refresh') ?></button>
+        <button type="button" onclick="clearLogs()"><?= translate('Clear Log') ?></button>
+        <button type="button" onclick="downloadLog()"><?= translate('Download') ?></button>
+        <button type="button" onclick="toggleAutoRefresh()" id="autoRefreshBtn"><?= translate('Auto Refresh: Off') ?></button>
     </div>
 </div>
 
@@ -100,6 +100,14 @@ $file_modified = file_exists($log_file) ? date('Y-m-d H:i:s', filemtime($log_fil
 
 <script>
 let autoRefreshInterval = null;
+const easytierLogsI18n = <?= json_encode([
+    'clearConfirm' => translate('Are you sure you want to clear the EasyTier log file?'),
+    'clearError' => translate('Error clearing log:'),
+    'unknownError' => translate('Unknown error'),
+    'error' => translate('Error:'),
+    'autoOff' => translate('Auto Refresh: Off'),
+    'autoOn' => translate('Auto Refresh: On'),
+], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 
 function changeLineCount(count) {
     const url = new URL(window.location);
@@ -115,7 +123,7 @@ function refreshLogs() {
 }
 
 function clearLogs() {
-    if (confirm('Are you sure you want to clear the EasyTier log file?')) {
+    if (confirm(easytierLogsI18n.clearConfirm)) {
         fetch('/plugins/easytier/include/clear_log.php', {
             method: 'POST',
             headers: {
@@ -131,11 +139,11 @@ function clearLogs() {
             if (data.success) {
                 refreshLogs();
             } else {
-                alert('Error clearing log: ' + (data.error || 'Unknown error'));
+                alert(easytierLogsI18n.clearError + ' ' + (data.error || easytierLogsI18n.unknownError));
             }
         })
         .catch(error => {
-            alert('Error: ' + error);
+            alert(easytierLogsI18n.error + ' ' + error);
         });
     }
 }
@@ -161,11 +169,11 @@ function toggleAutoRefresh() {
     if (autoRefreshInterval) {
         clearInterval(autoRefreshInterval);
         autoRefreshInterval = null;
-        btn.textContent = 'Auto Refresh: Off';
+        btn.textContent = easytierLogsI18n.autoOff;
         btn.classList.remove('active');
     } else {
         autoRefreshInterval = setInterval(refreshLogs, 5000); // Refresh every 5 seconds
-        btn.textContent = 'Auto Refresh: On';
+        btn.textContent = easytierLogsI18n.autoOn;
         btn.classList.add('active');
     }
 }

@@ -20,7 +20,7 @@
 
 namespace EasyTier;
 
-require_once '/usr/local/php/easytier-utils/bootstrap.php';
+require_once dirname(__FILE__) . '/common.php';
 
 use EasyTier\Config;
 use EasyTier\System;
@@ -33,4 +33,4 @@ System::configureIPForwarding($config);
 System::setExtraInterface($config);
 System::createEasytierParamsFile($config);
 
-echo "Settings applied successfully. The EasyTier service will restart.";
+echo translate('Settings applied successfully. The EasyTier service will restart.');
