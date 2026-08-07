@@ -16,6 +16,16 @@
 */
 
 /* Configuration Tabs */
+#serverForm {
+    margin-bottom: 24px;
+}
+
+.config-files-section {
+    clear: both;
+    display: block;
+    margin-top: 24px;
+}
+
 .config-tabs {
     display: flex;
     gap: 4px;

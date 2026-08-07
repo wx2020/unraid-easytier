@@ -71,9 +71,15 @@ After installation, open **Settings > Network Services > EasyTier**.
 - **Enable IP Forwarding** installs the plugin sysctl configuration.
 - **Add Peers to Hosts** updates a marked block in `/etc/hosts` each day.
 - **Config Server Address** is passed to EasyTier as `-w` (`--config-server`),
-  for example `udp://easytier.example.com:22020/username`.
+  for example `udp://easytier.example.com:22020/username`. When it is valid,
+  EasyTier receives its network configuration from the server and ignores the
+  local network, listener, RPC, SOCKS5, and hostname parameters.
 - **Listener Address** accepts `IP:PORT`; the selected protocol is prepended.
 - **SOCKS5 Listen Port** enables EasyTier's SOCKS5 server when set.
+- **EasyTier Config File** edits `/boot/config/plugins/easytier/easytier.toml`
+  and passes it to EasyTier with `-c` when the service fields are incomplete.
+  The precedence is valid `-w` address, valid service settings, then this
+  config file.
 
 ## Development
 

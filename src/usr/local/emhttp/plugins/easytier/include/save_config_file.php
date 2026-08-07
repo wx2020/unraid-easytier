@@ -38,7 +38,7 @@ try {
     }
 
     $allowedFiles = [
-        'main' => '/boot/config/plugins/easytier/easytier.cfg',
+        'main' => Config::CORE_CONFIG_FILE,
     ];
     if (!isset($allowedFiles[$tab]) || !hash_equals($allowedFiles[$tab], $file_path)) {
         throw new \Exception(translate('Invalid file path'));

@@ -21,6 +21,8 @@ namespace EasyTier;
 
 class Config
 {
+    public const CORE_CONFIG_FILE = '/boot/config/plugins/easytier/easytier.toml';
+
     public bool $IncludeInterface;
     public bool $Enable;
     public bool $IPForward;
@@ -68,5 +70,78 @@ class Config
     private static function parseBool(mixed $value): bool
     {
         return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public static function isValidServerAddress(string $address): bool
+    {
+        $address = trim($address);
+        if ($address === '') {
+            return false;
+        }
+
+        // EasyTier also accepts a username and uses the official server.
+        if (preg_match('/^[A-Za-z0-9][A-Za-z0-9_.@-]{0,127}$/', $address) === 1) {
+            return true;
+        }
+
+        if (preg_match(
+            '~^(udp|tcp|ws|wss)://(?:\[[0-9A-Fa-f:.]+\]|[A-Za-z0-9][A-Za-z0-9.-]*):([0-9]{1,5})/[^/?#\s]+$~i',
+            $address,
+            $matches
+        ) !== 1) {
+            return false;
+        }
+
+        return self::isValidPort($matches[2]);
+    }
+
+    public function hasValidServiceSettings(): bool
+    {
+        if (trim($this->NetworkName) === '') {
+            return false;
+        }
+
+        if (!in_array(strtolower($this->Protocol), ['udp', 'tcp', 'ws', 'wss'], true)) {
+            return false;
+        }
+
+        if ($this->Listener !== '' && !self::isValidListener($this->Listener)) {
+            return false;
+        }
+
+        if ($this->RpcPort !== '' && !self::isValidPort($this->RpcPort)) {
+            return false;
+        }
+
+        if ($this->Proxy !== '' && !self::isValidPort($this->Proxy)) {
+            return false;
+        }
+
+        return $this->Hostname === '' || preg_match('/\s/', $this->Hostname) !== 1;
+    }
+
+    private static function isValidListener(string $listener): bool
+    {
+        $listener = trim($listener);
+        if (str_contains($listener, '://')) {
+            return preg_match(
+                '~^(tcp|udp|ring|wg|ws|wss|quic|faketcp)://(?:\[[0-9A-Fa-f:.]+\]|[A-Za-z0-9][A-Za-z0-9.-]*):([0-9]{1,5})$~i',
+                $listener,
+                $matches
+            ) === 1 && self::isValidPort($matches[2]);
+        }
+
+        return preg_match(
+            '~^(?:\[[0-9A-Fa-f:.]+\]|[A-Za-z0-9][A-Za-z0-9.-]*):([0-9]{1,5})$~',
+            $listener,
+            $matches
+        ) === 1 && self::isValidPort($matches[1]);
+    }
+
+    private static function isValidPort(mixed $port): bool
+    {
+        return is_int($port) || is_string($port)
+            ? preg_match('/^[0-9]{1,5}$/', (string)$port) === 1 && (int)$port >= 1 && (int)$port <= 65535
+            : false;
     }
 }

@@ -207,43 +207,53 @@ class System extends \EDACerton\PluginUtils\System
     {
         $params = ['--dhcp', '--dev-name', 'easytier0'];
 
-        // Build EasyTier specific parameters
-        if (!empty($config->NetworkName)) {
-            $params[] = '--network-name';
-            $params[] = $config->NetworkName;
-        }
-
-        if (!empty($config->NetworkSecret)) {
-            $params[] = '--network-secret';
-            $params[] = $config->NetworkSecret;
-        }
-
-        if (!empty($config->ServerAddress)) {
+        /*
+         * A valid config server supplies the EasyTier network configuration.
+         * Keep only the plugin-required TUN settings here; local command-line
+         * options would otherwise override the configuration delivered by
+         * the server.
+         */
+        if (Config::isValidServerAddress($config->ServerAddress)) {
             $params[] = '-w';
-            $params[] = $config->ServerAddress;
-        }
+            $params[] = trim($config->ServerAddress);
+        } elseif ($config->hasValidServiceSettings()) {
+            // Build EasyTier parameters from the local configuration.
+            if (!empty($config->NetworkName)) {
+                $params[] = '--network-name';
+                $params[] = $config->NetworkName;
+            }
 
-        if (!empty($config->Listener)) {
-            $listener = str_contains($config->Listener, '://')
-                ? $config->Listener
-                : "{$config->Protocol}://{$config->Listener}";
-            $params[] = '--listeners';
-            $params[] = $listener;
-        }
+            if (!empty($config->NetworkSecret)) {
+                $params[] = '--network-secret';
+                $params[] = $config->NetworkSecret;
+            }
 
-        if (!empty($config->Proxy)) {
-            $params[] = '--socks5';
-            $params[] = $config->Proxy;
-        }
+            if (!empty($config->Listener)) {
+                $listener = str_contains($config->Listener, '://')
+                    ? $config->Listener
+                    : "{$config->Protocol}://{$config->Listener}";
+                $params[] = '--listeners';
+                $params[] = $listener;
+            }
 
-        if (!empty($config->RpcPort)) {
-            $params[] = '--rpc-portal';
-            $params[] = $config->RpcPort;
-        }
+            if (!empty($config->Proxy)) {
+                $params[] = '--socks5';
+                $params[] = $config->Proxy;
+            }
 
-        if (!empty($config->Hostname)) {
-            $params[] = '--hostname';
-            $params[] = $config->Hostname;
+            if (!empty($config->RpcPort)) {
+                $params[] = '--rpc-portal';
+                $params[] = $config->RpcPort;
+            }
+
+            if (!empty($config->Hostname)) {
+                $params[] = '--hostname';
+                $params[] = $config->Hostname;
+            }
+        } elseif (is_file(Config::CORE_CONFIG_FILE) && trim((string)file_get_contents(Config::CORE_CONFIG_FILE)) !== '') {
+            // A saved EasyTier config file is used only when local settings are incomplete.
+            $params[] = '-c';
+            $params[] = Config::CORE_CONFIG_FILE;
         }
 
         $encoded = array_map('escapeshellarg', $params);

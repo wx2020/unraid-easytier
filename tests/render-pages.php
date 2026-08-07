@@ -36,6 +36,35 @@ if (!str_contains($logs, 'EasyTier Logs') || !str_contains($logs, 'logContent'))
     throw new RuntimeException('Logs page did not render expected content.');
 }
 
+$config = new \EasyTier\Config();
+$config->ServerAddress = 'udp://config.example.com:22020/unraid';
+$config->NetworkName = 'local-network';
+$config->NetworkSecret = 'local-secret';
+$config->Listener = '0.0.0.0:11010';
+$config->Proxy = '1080';
+$config->RpcPort = '15888';
+$config->Hostname = 'local-host';
+if (!\EasyTier\Config::isValidServerAddress($config->ServerAddress)) {
+    throw new RuntimeException('The test config server address was rejected by validation.');
+}
+\EasyTier\System::createEasytierParamsFile($config);
+$params = file_get_contents('/usr/local/emhttp/plugins/easytier/custom-params.sh');
+if (!is_string($params) || !str_contains($params, '-w') || !str_contains($params, 'udp://config.example.com:22020/unraid')) {
+    throw new RuntimeException('A valid config server address was not added to the startup parameters: ' . var_export($params, true));
+}
+foreach (['--network-name', '--network-secret', '--listeners', '--socks5', '--rpc-portal', '--hostname'] as $option) {
+    if (str_contains($params, $option)) {
+        throw new RuntimeException("Local option {$option} was not ignored for a valid config server.");
+    }
+}
+
+$config->ServerAddress = 'not a valid address';
+\EasyTier\System::createEasytierParamsFile($config);
+$fallbackParams = file_get_contents('/usr/local/emhttp/plugins/easytier/custom-params.sh');
+if (!is_string($fallbackParams) || !str_contains($fallbackParams, '--network-name') || !str_contains($fallbackParams, 'local-network')) {
+    throw new RuntimeException('Local settings were not used when the config server address was invalid.');
+}
+
 $error = \EasyTier\includePage(
     '/usr/local/emhttp/plugins/easytier/include/Pages/Error.php',
     ['e' => new RuntimeException('render test')]

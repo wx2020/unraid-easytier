@@ -20,6 +20,9 @@
 - Moved the existing configuration form to the Settings tab
 - Added explicit stopped-service and unavailable-node states
 - Replaced the plugin icon with the official EasyTier icon
+- Added configuration-server mode that ignores conflicting local EasyTier parameters
+- Grouped the configuration server controls into a separate WebUI module
+- Added a separate EasyTier TOML editor passed with `-c`
 
 ### 2026.08.06.0001
 
