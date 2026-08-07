@@ -31,7 +31,7 @@ function loadTranslations(): void
 {
     static $loaded = false;
 
-    if (!$loaded && function_exists('parse_plugin')) {
+    if (!$loaded && function_exists('parse_plugin') && function_exists('_')) {
         \parse_plugin(PLUGIN_NAME);
         $loaded = true;
     }
