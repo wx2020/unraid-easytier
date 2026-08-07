@@ -1,6 +1,11 @@
 #!/bin/sh
 
 mkdir -p /etc/cron.daily /etc/rc.d /usr/local/emhttp/plugins/easytier/event
+
+# Unraid caches parsed plugin translations in a .dot file and does not
+# rebuild it when the corresponding .txt file is replaced during an upgrade.
+rm -f /usr/local/emhttp/languages/zh_CN/easytier.dot
+
 ln -sfn /usr/local/php/easytier-utils/daily.sh /etc/cron.daily/easytier-daily
 ln -sfn /usr/local/etc/rc.d/rc.easytier /etc/rc.d/rc.easytier
 ln -sfn ../restart.sh /usr/local/emhttp/plugins/easytier/event/array_started

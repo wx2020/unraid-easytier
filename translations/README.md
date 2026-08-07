@@ -21,3 +21,8 @@ The release build copies this file into the utils package at
 `/usr/local/emhttp/languages/zh_CN/easytier.txt`. Installing or upgrading the
 plugin therefore installs the Chinese translation automatically; no separate
 language-pack upload or release asset is required.
+
+Unraid stores the parsed result in `easytier.dot` and does not rebuild that
+cache when `easytier.txt` is replaced. The package installation script removes
+the old `.dot` file on every install or upgrade so Unraid parses the current
+translation file on the next page request.
