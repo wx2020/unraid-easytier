@@ -28,9 +28,9 @@ $config = $config ?? new Config();
 // Define config files and their paths
 $config_files = [
     'main' => [
-        'name' => translate('Main Config'),
-        'path' => '/boot/config/plugins/easytier/easytier.cfg',
-        'description' => translate('Main EasyTier configuration file')
+        'name' => translate('EasyTier Config File'),
+        'path' => Config::CORE_CONFIG_FILE,
+        'description' => translate('Configuration file passed to easytier-core with -c')
     ],
 ];
 
@@ -188,6 +188,7 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
 </form>
 
 <!-- Configuration Files Tabs Section -->
+<div class="config-files-section">
 <br>
 <table class="unraid tablesorter"><thead><tr><td><?= translate('Configuration Files') ?></td></tr></thead></table>
 
@@ -209,6 +210,7 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
         <br>
         <small><?= translate('File:') ?> <?= htmlspecialchars($config_files[$current_tab]['path']) ?></small>
     </div>
+    <blockquote class='inline_help'><?= translate('A saved EasyTier config file overrides local settings unless a valid Config Server Address is configured.') ?></blockquote>
 
     <form method="POST" action="/plugins/easytier/include/save_config_file.php" id="configFileForm">
         <input type="hidden" name="tab" value="<?= htmlspecialchars($current_tab) ?>">
@@ -322,3 +324,4 @@ document.getElementById('configEditor').addEventListener('keydown', function(e) 
     }
 });
 </script>
+</div>

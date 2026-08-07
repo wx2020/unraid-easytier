@@ -216,7 +216,7 @@ class System extends \EDACerton\PluginUtils\System
         if (Config::isValidServerAddress($config->ServerAddress)) {
             $params[] = '-w';
             $params[] = trim($config->ServerAddress);
-        } else {
+        } elseif ($config->hasValidServiceSettings()) {
             // Build EasyTier parameters from the local configuration.
             if (!empty($config->NetworkName)) {
                 $params[] = '--network-name';
@@ -250,6 +250,10 @@ class System extends \EDACerton\PluginUtils\System
                 $params[] = '--hostname';
                 $params[] = $config->Hostname;
             }
+        } elseif (is_file(Config::CORE_CONFIG_FILE) && trim((string)file_get_contents(Config::CORE_CONFIG_FILE)) !== '') {
+            // A saved EasyTier config file is used only when local settings are incomplete.
+            $params[] = '-c';
+            $params[] = Config::CORE_CONFIG_FILE;
         }
 
         $encoded = array_map('escapeshellarg', $params);

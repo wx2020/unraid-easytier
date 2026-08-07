@@ -76,6 +76,10 @@ After installation, open **Settings > Network Services > EasyTier**.
   local network, listener, RPC, SOCKS5, and hostname parameters.
 - **Listener Address** accepts `IP:PORT`; the selected protocol is prepended.
 - **SOCKS5 Listen Port** enables EasyTier's SOCKS5 server when set.
+- **EasyTier Config File** edits `/boot/config/plugins/easytier/easytier.toml`
+  and passes it to EasyTier with `-c` when the service fields are incomplete.
+  The precedence is valid `-w` address, valid service settings, then this
+  config file.
 
 ## Development
 
