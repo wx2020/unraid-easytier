@@ -187,7 +187,8 @@ rm -rf /usr/local/emhttp/plugins/easytier
 rm -rf /usr/local/php/easytier-utils
 rm -f /etc/rc.d/rc.easytier /etc/cron.daily/easytier-daily
 rm -f /etc/sysctl.d/99-easytier.conf
-rm -f /usr/local/emhttp/languages/zh_CN/easytier.txt
+rm -f /usr/local/emhttp/languages/zh_CN/easytier.txt \
+    /usr/local/emhttp/languages/zh_CN/easytier.dot
 rm -f /boot/config/plugins/easytier/*.zip
 ]]>
 </INLINE>

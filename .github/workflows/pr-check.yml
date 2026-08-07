@@ -20,8 +20,11 @@ jobs:
           ! grep -R "include/easytier-utils" src
           grep -q '<SHA256>PLACEHOLDER_SHA256</SHA256>' plugin/easytier.plg
           test -s translations/zh_CN/EasyTier/easytier.txt
+          grep -q 'rm -f /usr/local/emhttp/languages/zh_CN/easytier.dot' src/install/doinst.sh
+          grep -q '/usr/local/emhttp/languages/zh_CN/easytier.dot' plugin/easytier.plg
           grep -q 'EASYTIER_ASSET_URL' plugin/easytier.plg
           python tests/validate-ca.py
+          python tests/validate-translations.py
 
       - name: Validate PHP syntax
         shell: bash
