@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unraid Translation Pack"
+  short_description: "Validate and ship Unraid plugin translations"
+  default_prompt: "Use $unraid-translation-pack to validate and package an Unraid plugin translation."
