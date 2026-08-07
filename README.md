@@ -29,6 +29,7 @@ maintenance.
 ## Features
 
 - Start, stop, and automatically recover `easytier-core`
+- Start EasyTier during system/plugin startup after network readiness; array auto-start is not required
 - Configure network name, secret, peer, listener, RPC, and hostname in WebUI
 - Register the `easytier0` interface with Unraid
 - Configure IPv4 and IPv6 forwarding
@@ -67,6 +68,8 @@ workflow, so the template itself is not an installable release artifact.
 After installation, open **Settings > Network Services > EasyTier**.
 
 - **Enable EasyTier** controls whether the service starts.
+- EasyTier starts during system/plugin startup after the host network is ready;
+  it does not depend on the array starting.
 - **Include Interface in Unraid** adds `easytier0` to Unraid network settings.
 - **Enable IP Forwarding** installs the plugin sysctl configuration.
 - **Add Peers to Hosts** updates a marked block in `/etc/hosts` each day.

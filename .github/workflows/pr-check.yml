@@ -22,6 +22,10 @@ jobs:
           test -s translations/zh_CN/EasyTier/easytier.txt
           grep -q 'rm -f /usr/local/emhttp/languages/zh_CN/easytier.dot' src/install/doinst.sh
           grep -q '/usr/local/emhttp/languages/zh_CN/easytier.dot' plugin/easytier.plg
+          grep -q 'rm -f /usr/local/emhttp/plugins/easytier/event/array_started' src/install/doinst.sh
+          ! grep -q 'ln -sfn ../restart.sh /usr/local/emhttp/plugins/easytier/event' src/install/doinst.sh
+          grep -q 'wait_for_network' src/usr/local/etc/rc.d/rc.easytier
+          grep -q 'nohup /bin/sh' src/usr/local/emhttp/plugins/easytier/restart.sh
           grep -q 'EASYTIER_ASSET_URL' plugin/easytier.plg
           python tests/validate-ca.py
           python tests/validate-translations.py

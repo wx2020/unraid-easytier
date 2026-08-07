@@ -3,6 +3,40 @@
 
 . /usr/local/php/easytier-utils/log.sh
 
+network_is_ready() {
+  # If ip is unavailable, do not block service startup indefinitely.
+  if ! command -v ip >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if ip route show default 2>/dev/null | grep -q '^default '; then
+    return 0
+  fi
+
+  # A host may intentionally have no default route. A global address on a
+  # non-loopback, non-EasyTier interface is enough to start and reconnect.
+  ip -o addr show scope global 2>/dev/null |
+    awk '$2 != "lo" && $2 != "easytier0" { found=1 } END { exit found ? 0 : 1 }'
+}
+
+wait_for_network() {
+  network_timeout=60
+  network_interval=2
+  elapsed=0
+
+  while ! network_is_ready; do
+    if [ "$elapsed" -ge "$network_timeout" ]; then
+      log "Network readiness wait timed out; starting EasyTier and allowing reconnect."
+      return 0
+    fi
+
+    sleep "$network_interval"
+    elapsed=$((elapsed + network_interval))
+  done
+
+  log "System network is ready."
+}
+
 start_easytier() {
   if ! /usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/easytier-core" 1> /dev/null 2> /dev/null ; then
 
@@ -11,6 +45,8 @@ start_easytier() {
         log "EasyTier is disabled in settings, not starting easytier-core."
         return
     fi
+
+    wait_for_network
 
     if [ -f /usr/local/emhttp/plugins/easytier/custom-params.sh ]; then
         . /usr/local/emhttp/plugins/easytier/custom-params.sh

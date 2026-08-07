@@ -26,6 +26,7 @@ NAT 穿透、子网代理、智能路由、加密隧道和多种传输协议。
 ## 功能
 
 - 启动、停止并自动恢复 `easytier-core`
+- 在系统/插件启动且网络就绪后启动 EasyTier，不依赖阵列自动启动
 - 在 WebUI 中配置网络名称、密码、对等节点、监听地址、RPC 和主机名
 - 将 `easytier0` 网络接口注册到 Unraid
 - 配置 IPv4 和 IPv6 转发
@@ -62,6 +63,7 @@ NAT 穿透、子网代理、智能路由、加密隧道和多种传输协议。
 安装完成后，打开 **Settings > Network Services > EasyTier**。
 
 - **Enable EasyTier**：控制是否启动服务。
+- EasyTier 会在系统/插件启动且主机网络就绪后启动，不依赖阵列启动。
 - **Include Interface in Unraid**：将 `easytier0` 添加到 Unraid 网络设置。
 - **Enable IP Forwarding**：安装插件的 sysctl 配置。
 - **Add Peers to Hosts**：每天更新 `/etc/hosts` 中由插件标记的区块。

@@ -16,6 +16,7 @@
 
 ### 2026.08.06.0002
 
+- Starts EasyTier during system/plugin startup after network readiness instead of array lifecycle events
 - Added a dynamic EasyTier node status dashboard powered by `easytier-cli node`
 - Moved the existing configuration form to the Settings tab
 - Added explicit stopped-service and unavailable-node states
@@ -151,7 +152,9 @@ chmod 0644 /var/log/easytier.log
 # Create config directory if it doesn't exist
 mkdir -p /boot/config/plugins/easytier
 
-# Start EasyTier service
+# Plugin manifests are processed during Unraid system startup. Start EasyTier
+# here after the package and its rc script have been installed; this does not
+# depend on the array starting.
 /usr/local/emhttp/plugins/easytier/restart.sh
 
 # Cleanup old versions
