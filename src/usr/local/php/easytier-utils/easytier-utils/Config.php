@@ -69,4 +69,45 @@ class Config
     {
         return filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
+
+    public static function isValidServerAddress(string $address): bool
+    {
+        $address = trim($address);
+        if ($address === '') {
+            return false;
+        }
+
+        // EasyTier also accepts a username and uses the official server.
+        if (preg_match('/^[A-Za-z0-9][A-Za-z0-9_.@-]{0,127}$/', $address) === 1) {
+            return true;
+        }
+
+        try {
+            $url = parse_url($address);
+        } catch (\ValueError) {
+            return false;
+        }
+
+        if (!is_array($url)) {
+            return false;
+        }
+
+        $protocol = strtolower((string)($url['scheme'] ?? ''));
+        $port = $url['port'] ?? null;
+        $path = $url['path'] ?? '';
+
+        if (!in_array($protocol, ['udp', 'tcp', 'ws', 'wss'], true)) {
+            return false;
+        }
+
+        if (($url['host'] ?? '') === '' || !is_int($port) || $port < 1 || $port > 65535) {
+            return false;
+        }
+
+        if (isset($url['user']) || isset($url['pass']) || isset($url['query']) || isset($url['fragment'])) {
+            return false;
+        }
+
+        return preg_match('~^/[^/?#\s]+$~', $path) === 1;
+    }
 }

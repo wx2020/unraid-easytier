@@ -97,6 +97,22 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
     </select></dd>
 </dl>
 
+<table class="unraid tablesorter"><thead><tr><td><?= translate('Configuration Server') ?></td></tr></thead></table>
+
+<dl>
+    <dt><?= translate('Config Server Address') ?></dt>
+    <dd>
+        <input type="text" name="SERVER_ADDRESS" value="<?= htmlspecialchars($config->ServerAddress ?? '') ?>" placeholder="udp://easytier.example.com:22020/username">
+    </dd>
+</dl>
+<blockquote class='inline_help'>
+    <?= translate('EasyTier configuration server passed as') ?> <code>-w</code>.
+    <?= translate('Format: protocol://host:port/username') ?>
+</blockquote>
+<blockquote class='inline_help'><?= translate('A valid Config Server Address overrides local EasyTier settings.') ?></blockquote>
+
+<table class="unraid tablesorter"><thead><tr><td><?= translate('Local EasyTier Configuration') ?></td></tr></thead></table>
+
 <dl>
     <dt><?= translate('Network Name') ?></dt>
     <dd>
@@ -112,17 +128,6 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
     </dd>
 </dl>
 <blockquote class='inline_help'><?= translate('The secret key for the EasyTier network (optional).') ?></blockquote>
-
-<dl>
-    <dt><?= translate('Config Server Address') ?></dt>
-    <dd>
-        <input type="text" name="SERVER_ADDRESS" value="<?= htmlspecialchars($config->ServerAddress ?? '') ?>" placeholder="udp://easytier.example.com:22020/username">
-    </dd>
-</dl>
-<blockquote class='inline_help'>
-    <?= translate('EasyTier configuration server passed as') ?> <code>-w</code>.
-    <?= translate('Format: protocol://host:port/username') ?>
-</blockquote>
 
 <div class="advanced">
     <dl>

@@ -66,7 +66,8 @@ NAT 穿透、子网代理、智能路由、加密隧道和多种传输协议。
 - **Enable IP Forwarding**：安装插件的 sysctl 配置。
 - **Add Peers to Hosts**：每天更新 `/etc/hosts` 中由插件标记的区块。
 - **Config Server Address**：作为 `-w`（`--config-server`）传给 EasyTier，
-  例如 `udp://easytier.example.com:22020/username`。
+  例如 `udp://easytier.example.com:22020/username`。配置有效时，EasyTier
+  会从服务器获取网络配置，并忽略本地网络、监听、RPC、SOCKS5 和主机名参数。
 - **Listener Address**：填写 `IP:PORT`，插件会在前面添加所选协议。
 - **SOCKS5 Listen Port**：设置后启用 EasyTier SOCKS5 服务器。
 
