@@ -36,6 +36,13 @@ Get-ChildItem -Path "src" -Recurse -File | ForEach-Object {
     Copy-Item -Path $_.FullName -Destination $destPath -Force
 }
 
+# Install the plugin translation as part of the utils package so the plugin
+# does not need a separate language-pack release asset.
+Write-Host "Copying Chinese translation..." -ForegroundColor Yellow
+$translationPath = Join-Path $PACKAGE_DIR "usr\local\emhttp\languages\zh_CN\easytier.txt"
+New-Item -ItemType Directory -Path (Split-Path $translationPath -Parent) -Force | Out-Null
+Copy-Item -Path "translations\zh_CN\EasyTier\easytier.txt" -Destination $translationPath -Force
+
 # Create tar archive (requires 7zip or tar on Windows)
 Write-Host "Creating package archive..." -ForegroundColor Yellow
 

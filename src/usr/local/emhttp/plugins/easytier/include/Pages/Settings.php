@@ -30,7 +30,7 @@ $config_files = [
     'main' => [
         'name' => translate('EasyTier Config File'),
         'path' => Config::CORE_CONFIG_FILE,
-        'description' => translate('Configuration file passed to easytier-core with -c')
+        'description' => translate('Configuration file used by EasyTier core')
     ],
 ];
 

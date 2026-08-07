@@ -19,8 +19,6 @@ jobs:
           grep -q "version=\"${VERSION}\"" plugin/easytier.plg
           ! grep -R "include/easytier-utils" src
           grep -q '<SHA256>PLACEHOLDER_SHA256</SHA256>' plugin/easytier.plg
-          grep -q 'EASYTIER_ZH_CN_URL' plugin/easytier.plg
-          grep -q 'EASYTIER_ZH_CN_SHA256' plugin/easytier.plg
           test -s translations/zh_CN/EasyTier/easytier.txt
           grep -q 'EASYTIER_ASSET_URL' plugin/easytier.plg
           python tests/validate-ca.py
@@ -59,6 +57,9 @@ jobs:
           ROOT="package/unraid-easytier-utils-${VERSION}-noarch-1"
           test -f "${ROOT}/usr/local/emhttp/plugins/easytier/EasyTier.page"
           test -f "${ROOT}/usr/local/php/easytier-utils/bootstrap.php"
+          test -s "${ROOT}/usr/local/emhttp/languages/zh_CN/easytier.txt"
+          cmp translations/zh_CN/EasyTier/easytier.txt \
+            "${ROOT}/usr/local/emhttp/languages/zh_CN/easytier.txt"
 
       - uses: actions/upload-artifact@v4
         with:

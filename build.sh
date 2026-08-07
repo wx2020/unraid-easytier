@@ -28,6 +28,13 @@ find . -type f -not -path "*/\.*" | while read -r file; do
 done
 cd ..
 
+# Install the plugin translation as part of the utils package so the plugin
+# does not need a separate language-pack release asset.
+echo "Copying Chinese translation..."
+mkdir -p "${PACKAGE_DIR}/usr/local/emhttp/languages/zh_CN"
+cp translations/zh_CN/EasyTier/easytier.txt \
+    "${PACKAGE_DIR}/usr/local/emhttp/languages/zh_CN/easytier.txt"
+
 # Create the package
 echo "Creating package archive..."
 cd "${BUILD_DIR}"

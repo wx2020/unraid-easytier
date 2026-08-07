@@ -84,16 +84,7 @@ Note: Update the URL and SHA256 for each release
 </FILE>
 
 <!--
-EasyTier Chinese translation
-The release workflow publishes this file and replaces both placeholders.
--->
-<FILE Name="/usr/local/emhttp/languages/zh_CN/easytier.txt">
-<URL>EASYTIER_ZH_CN_URL</URL>
-<SHA256>EASYTIER_ZH_CN_SHA256</SHA256>
-</FILE>
-
-<!--
-EasyTier Utils package (PHP files, styles, etc.)
+EasyTier Utils package (PHP files, styles, translation, etc.)
 Note: Update the URL and SHA256 for each release
 -->
 <FILE Name="/boot/config/plugins/easytier/unraid-easytier-utils-2026.08.06.0002-noarch-1.txz">
