@@ -93,10 +93,10 @@ jobs:
           set -euo pipefail
           SHA256="$(sha256sum "${PKG_FILE}" | awk '{print $1}')"
           export SHA256
+          # P0 B-01: anchored replacements only (avoid global SOURCE_VERSION substitution that pollutes CHANGES history)
           sed -E \
-            -e "s/${SOURCE_VERSION}/${VERSION}/g" \
             -e "s/version=\"[^\"]+\"/version=\"${VERSION}\"/" \
-            -e "s/unraid-easytier-utils-[^\"<]+-noarch-1\\.txz/unraid-easytier-utils-${VERSION}-noarch-1.txz/g" \
+            -e "s/unraid-easytier-utils-[^\"]*-noarch-1\\.txz/unraid-easytier-utils-${VERSION}-noarch-1.txz/g" \
             -e "s|releases/download/[^/]+/unraid-easytier-utils|releases/download/${VERSION}/unraid-easytier-utils|g" \
             -e "s/PLACEHOLDER_SHA256/${SHA256}/" \
             -e "s|EASYTIER_ASSET_URL|${EASYTIER_ASSET_URL}|g" \

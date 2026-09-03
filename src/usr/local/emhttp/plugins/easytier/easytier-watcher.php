@@ -103,9 +103,10 @@ while (true) {
                 continue;
             }
         } else {
-            logMessage("easytier-core is not running and service is disabled. Nothing to do.");
-            // Exit gracefully if service is disabled
-            break;
+            // P0 R-01: do not exit when disabled; keep polling so re-enable is detected without reboot
+            logMessage("easytier-core is not running and service is disabled. Waiting for enable.");
+            sleep($checkInterval);
+            continue;
         }
     } else {
         $restartCount = 0; // Reset counter when process is running
@@ -113,5 +114,3 @@ while (true) {
 
     sleep($checkInterval);
 }
-
-logMessage("EasyTier watcher stopped.");

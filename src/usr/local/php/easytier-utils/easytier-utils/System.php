@@ -203,9 +203,41 @@ class System extends \EDACerton\PluginUtils\System
         }
     }
 
+    public static function ensureConfigDir(Config $config): void
+    {
+        $dir = trim($config->ConfigDir);
+        if ($dir === '' || !Config::isValidConfigDir($dir)) {
+            $dir = Config::DEFAULT_CONFIG_DIR;
+        }
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0700, true);
+        } else {
+            @chmod($dir, 0700);
+        }
+        // P0 S-03: secure main config files
+        $cfg = '/boot/config/plugins/easytier/easytier.cfg';
+        if (is_file($cfg)) {
+            @chmod($cfg, 0600);
+        }
+        if (is_file(Config::CORE_CONFIG_FILE)) {
+            @chmod(Config::CORE_CONFIG_FILE, 0600);
+        }
+        @chmod('/boot/config/plugins/easytier', 0700);
+    }
+
     public static function createEasytierParamsFile(Config $config): void
     {
+        self::ensureConfigDir($config);
+
         $params = ['--dhcp', '--dev-name', 'easytier0'];
+
+        // Always pass --config-dir when valid (default: /boot/config/plugins/easytier).
+        // EasyTier will load all *.toml in the directory; explicit -c/-w still take precedence per EasyTier docs.
+        $configDir = trim($config->ConfigDir);
+        if ($configDir !== '' && Config::isValidConfigDir($configDir)) {
+            $params[] = '--config-dir';
+            $params[] = $configDir;
+        }
 
         /*
          * A valid config server supplies the EasyTier network configuration.
@@ -256,11 +288,15 @@ class System extends \EDACerton\PluginUtils\System
             $params[] = Config::CORE_CONFIG_FILE;
         }
 
-        $encoded = array_map('escapeshellarg', $params);
-        file_put_contents(
-            '/usr/local/emhttp/plugins/easytier/custom-params.sh',
-            'EASYTIER_CUSTOM_PARAMS=' . escapeshellarg(implode(' ', $encoded)) . PHP_EOL,
-            LOCK_EX
-        );
+        // P0 S-02: single-layer handling. Store args one per line without double escaping;
+        // rc.easytier reads the file line-by-line and execs without eval.
+        $content = implode("\n", $params) . "\n";
+        $paramsFile = '/usr/local/emhttp/plugins/easytier/custom-params.sh';
+        file_put_contents($paramsFile, $content, LOCK_EX);
+        @chmod($paramsFile, 0600);
+        // Backward compatibility: also keep legacy variable for older rc.easytier (single outer escaping)
+        $legacy = '/boot/config/plugins/easytier/args.txt';
+        @file_put_contents($legacy, $content, LOCK_EX);
+        @chmod($legacy, 0600);
     }
 }

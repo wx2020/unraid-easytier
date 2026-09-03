@@ -1,6 +1,19 @@
 #!/bin/sh
 
 mkdir -p /etc/cron.daily /etc/rc.d
+# P0 S-03: secure config directory
+mkdir -p /boot/config/plugins/easytier/state
+chmod 0700 /boot/config/plugins/easytier 2>/dev/null || true
+chmod 0700 /boot/config/plugins/easytier/state 2>/dev/null || true
+if [ -f /boot/config/plugins/easytier/easytier.cfg ]; then
+    chmod 0600 /boot/config/plugins/easytier/easytier.cfg 2>/dev/null || true
+fi
+if [ -f /boot/config/plugins/easytier/easytier.toml ]; then
+    chmod 0600 /boot/config/plugins/easytier/easytier.toml 2>/dev/null || true
+fi
+if [ -f /usr/local/emhttp/plugins/easytier/custom-params.sh ]; then
+    chmod 0600 /usr/local/emhttp/plugins/easytier/custom-params.sh 2>/dev/null || true
+fi
 
 # Older releases used array lifecycle hooks. Remove them during upgrade so
 # startup is controlled by plugin loading at system boot instead.
