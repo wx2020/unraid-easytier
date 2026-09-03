@@ -56,33 +56,40 @@ class System extends \EDACerton\PluginUtils\System
             return [];
         }
 
-        // P1 R-05: try JSON first (if upstream supports --json)
-        $jsonLines = Utils::runwrap('/usr/local/sbin/easytier-cli peer --json 2>/dev/null', false, false);
-        if ($jsonLines !== []) {
-            $json = implode("\n", $jsonLines);
-            $data = json_decode($json, true);
-            if (is_array($data)) {
-                // Support both array and object with 'peers' key
-                $list = $data['peers'] ?? $data;
-                if (is_array($list)) {
-                    $peers = [];
-                    foreach ($list as $item) {
-                        if (is_array($item) && isset($item['virtual_ip'], $item['hostname'])) {
-                            $ip = $item['virtual_ip'] ?? $item['ip'] ?? '';
-                            $hn = $item['hostname'] ?? '';
-                            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && preg_match('/^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$/', $hn)) {
-                                $peers[] = ['virtual_ip' => $ip, 'hostname' => $hn];
-                            }
-                        } elseif (is_array($item) && isset($item['ipv4'], $item['hostname'])) {
-                            $ip = $item['ipv4'];
-                            $hn = $item['hostname'];
-                            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && preg_match('/^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$/', $hn)) {
-                                $peers[] = ['virtual_ip' => $ip, 'hostname' => $hn];
+        // P1 R-05: JSON not supported on current easytier-cli (peer --json => unexpected argument). Keep table as primary, try JSON only if help indicates support.
+        $help = Utils::runwrap('/usr/local/sbin/easytier-cli peer --help 2>&1', false, false);
+        $helpText = implode("\n", $help);
+        if (str_contains($helpText, 'json') || str_contains($helpText, '--json') || str_contains($helpText, '-j')) {
+            // Try common JSON variants only if advertised
+            foreach (['/usr/local/sbin/easytier-cli peer --json 2>/dev/null', '/usr/local/sbin/easytier-cli peer -j 2>/dev/null', '/usr/local/sbin/easytier-cli --json peer 2>/dev/null'] as $jsonCmd) {
+                $jsonLines = Utils::runwrap($jsonCmd, false, false);
+                if ($jsonLines === [] || str_contains(implode("\n", $jsonLines), 'unexpected argument')) {
+                    continue;
+                }
+                $json = implode("\n", $jsonLines);
+                $data = json_decode($json, true);
+                if (is_array($data)) {
+                    $list = $data['peers'] ?? $data;
+                    if (is_array($list)) {
+                        $peers = [];
+                        foreach ($list as $item) {
+                            if (is_array($item) && isset($item['virtual_ip'], $item['hostname'])) {
+                                $ip = $item['virtual_ip'] ?? $item['ip'] ?? '';
+                                $hn = $item['hostname'] ?? '';
+                                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && preg_match('/^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$/', $hn)) {
+                                    $peers[] = ['virtual_ip' => $ip, 'hostname' => $hn];
+                                }
+                            } elseif (is_array($item) && isset($item['ipv4'], $item['hostname'])) {
+                                $ip = $item['ipv4'];
+                                $hn = $item['hostname'];
+                                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && preg_match('/^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$/', $hn)) {
+                                    $peers[] = ['virtual_ip' => $ip, 'hostname' => $hn];
+                                }
                             }
                         }
-                    }
-                    if ($peers !== []) {
-                        return $peers;
+                        if ($peers !== []) {
+                            return $peers;
+                        }
                     }
                 }
             }

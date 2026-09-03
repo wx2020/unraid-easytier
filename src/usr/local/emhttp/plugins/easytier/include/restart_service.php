@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 
 /*
@@ -29,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit(translate('Method not allowed'));
 }
 
-requireCsrfToken($_POST['csrf_token'] ?? null);
+requireCsrfToken($_POST['csrf_token'] ?? $_REQUEST['csrf_token'] ?? null);
 // P1 W-03: async trigger to avoid blocking HTTP (wait_for_network up to 60s)
 exec("nohup /usr/local/emhttp/plugins/easytier/restart.sh >/dev/null 2>&1 &");
 http_response_code(202);
