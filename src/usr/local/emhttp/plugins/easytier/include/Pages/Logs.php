@@ -28,10 +28,12 @@ $config = $config ?? new Config();
 // Define log file
 $log_file = '/var/log/easytier.log';
 
-// Get number of lines to display
+// P2 S-05: strict whitelist for lines to avoid enumeration
+$allowedLines = [10, 50, 100, 200, 500, 1000];
 $lines = intval($_GET['lines'] ?? 100);
-if ($lines < 10) $lines = 10;
-if ($lines > 1000) $lines = 1000;
+if (!in_array($lines, $allowedLines, true)) {
+    $lines = 100;
+}
 
 // P1 R-06: tail-based reading with size guard
 $log_content = '';
@@ -162,6 +164,13 @@ function clearLogs() {
 }
 
 function downloadLog() {
+    // P2 W-06: stream full file when log is large
+    const sizeText = document.querySelector('.log-info')?.textContent || '';
+    const isLarge = sizeText.includes('>5MB') || document.getElementById('logContent').textContent.includes('too large');
+    if (isLarge) {
+        window.location.href = '/plugins/easytier/include/download_log.php';
+        return;
+    }
     const fileName = 'easytier.log';
     const content = document.getElementById('logContent').textContent;
 
@@ -176,6 +185,17 @@ function downloadLog() {
     window.URL.revokeObjectURL(url);
 }
 
+function fetchLogTail() {
+    const lines = new URL(window.location).searchParams.get('lines') || '100';
+    fetch('/plugins/easytier/include/log_tail.php?lines=' + encodeURIComponent(lines))
+        .then(r => r.text())
+        .then(text => {
+            const el = document.getElementById('logContent');
+            el.textContent = text;
+            el.scrollTop = el.scrollHeight;
+        })
+        .catch(() => refreshLogs());
+}
 function toggleAutoRefresh() {
     const btn = document.getElementById('autoRefreshBtn');
 
@@ -185,9 +205,11 @@ function toggleAutoRefresh() {
         btn.textContent = easytierLogsI18n.autoOff;
         btn.classList.remove('active');
     } else {
-        autoRefreshInterval = setInterval(refreshLogs, 5000); // Refresh every 5 seconds
+        // P2 W-02: AJAX refresh instead of full page reload
+        autoRefreshInterval = setInterval(fetchLogTail, 5000);
         btn.textContent = easytierLogsI18n.autoOn;
         btn.classList.add('active');
+        fetchLogTail();
     }
 }
 

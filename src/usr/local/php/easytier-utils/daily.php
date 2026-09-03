@@ -26,8 +26,17 @@ use EasyTier\Utils;
 
 $config = new Config();
 
-if (!$config->Enable) {
-    exit(0);
+// P2 R-11: unify hosts cleanup semantics with pre-startup and stop
+if (!$config->Enable || !$config->AddPeersToHosts) {
+    System::syncHostsFile([]);
+    if (!$config->Enable) {
+        Utils::logwrap("Daily: service disabled, hosts cleaned");
+        exit(0);
+    }
+    if (!$config->AddPeersToHosts) {
+        Utils::logwrap("Daily: AddPeersToHosts disabled, hosts cleaned");
+        exit(0);
+    }
 }
 
 Utils::logwrap("Running daily maintenance tasks");

@@ -1,3 +1,4 @@
+# P2 C-08: shared Menu/Icon - keep in sync with EasyTier-1-Settings.page / EasyTier-2-Logs.page
 Menu="NetworkServices"
 Icon="easytier.png"
 Title="EasyTier"

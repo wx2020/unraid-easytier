@@ -115,6 +115,8 @@ stop_easytier() {
   log "Stopping EasyTier."
   /usr/bin/pkill --ns $$ --euid root -f "easytier-watcher.php" 2> /dev/null || true
   killall --ns $$ --wait easytier-core 2> /dev/null
+  # P2 R-11: cleanup managed hosts on stop
+  /usr/bin/php -r 'require "/usr/local/php/easytier-utils/bootstrap.php"; \EasyTier\System::syncHostsFile([]);' 2>/dev/null || true
 }
 
 restart_easytier() {

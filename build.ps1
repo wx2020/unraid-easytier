@@ -48,24 +48,35 @@ Write-Host "Creating package archive..." -ForegroundColor Yellow
 
 Push-Location $BUILD_DIR
 
-# Try using tar if available (Windows 10+)
+# P2 B-04: try xz for consistency with build.sh, fallback to gzip with warning
 try {
-    tar -czf "../$PKG_FILE" $PKG_VERSION
+    # Try bsdtar/xz first (matches build.sh --xz)
+    tar --xz -cf "../$PKG_FILE" $PKG_VERSION 2>$null
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "Package created with tar command" -ForegroundColor Green
+        Write-Host "Package created with tar --xz (xz, matches build.sh)" -ForegroundColor Green
     } else {
-        throw "tar failed"
+        throw "tar xz failed"
     }
 } catch {
-    # Fallback to 7zip if installed
-    if (Get-Command "7z" -ErrorAction SilentlyContinue) {
-        & 7z a -ttar -so archive.tar $PKG_VERSION | & 7z a -si -tgzip "../$PKG_FILE"
-        Write-Host "Package created with 7zip" -ForegroundColor Green
-    } else {
-        Write-Host "ERROR: Neither tar nor 7z found. Please install 7-Zip or use WSL/Linux to build." -ForegroundColor Red
-        Write-Host "You can also copy the 'src' folder to a Linux system and run: make" -ForegroundColor Yellow
-        Pop-Location
-        exit 1
+    try {
+        tar -czf "../$PKG_FILE" $PKG_VERSION
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "WARNING: xz not available, created gzip .txz (Unraid tar auto-detects)" -ForegroundColor Yellow
+            Write-Host "Package created with tar -czf (gzip)" -ForegroundColor Green
+        } else {
+            throw "tar gz failed"
+        }
+    } catch {
+        # Fallback to 7zip if installed
+        if (Get-Command "7z" -ErrorAction SilentlyContinue) {
+            & 7z a -ttar -so archive.tar $PKG_VERSION | & 7z a -si -tgzip "../$PKG_FILE"
+            Write-Host "Package created with 7zip (gzip)" -ForegroundColor Green
+        } else {
+            Write-Host "ERROR: Neither tar nor 7z found. Please install 7-Zip or use WSL/Linux to build." -ForegroundColor Red
+            Write-Host "You can also copy the 'src' folder to a Linux system and run: make" -ForegroundColor Yellow
+            Pop-Location
+            exit 1
+        }
     }
 }
 

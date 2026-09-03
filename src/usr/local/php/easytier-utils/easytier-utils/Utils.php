@@ -31,45 +31,18 @@ class Utils extends \EDACerton\PluginUtils\Utils
         }
     }
 
-    public static function printRow(string $title, string $value): string
-    {
-        return "<tr><td>{$title}</td><td>{$value}</td></tr>" . PHP_EOL;
-    }
-
-    public static function printDash(string $title, string $value): string
-    {
-        return "<tr><td><span class='w26'>{$title}</span>{$value}</td></tr>" . PHP_EOL;
-    }
-
-    public static function ip4_in_network(string $ip, string $network): bool
-    {
-        if (strpos($network, '/') === false) {
-            return false;
-        }
-
-        list($subnet, $mask) = explode('/', $network, 2);
-        if (
-            filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false ||
-            filter_var($subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false ||
-            !ctype_digit($mask) ||
-            (int) $mask < 0 ||
-            (int) $mask > 32
-        ) {
-            return false;
-        }
-        $ip_bin_string       = sprintf("%032b", ip2long($ip));
-        $net_bin_string      = sprintf("%032b", ip2long($subnet));
-
-        return (substr_compare($ip_bin_string, $net_bin_string, 0, intval($mask)) === 0);
-    }
+    private static ?Utils $sharedInstance = null;
 
     public static function logwrap(string $message, bool $debug = false, bool $rateLimit = false): void
     {
         if ( ! defined(__NAMESPACE__ . "\PLUGIN_NAME")) {
             throw new \RuntimeException("PLUGIN_NAME is not defined.");
         }
-        $utils = new Utils(PLUGIN_NAME);
-        $utils->logmsg($message, $debug, $rateLimit);
+        // P2 C-04: singleton to avoid per-call allocation in watcher/daily
+        if (self::$sharedInstance === null) {
+            self::$sharedInstance = new Utils(PLUGIN_NAME);
+        }
+        self::$sharedInstance->logmsg($message, $debug, $rateLimit);
     }
 
     /**

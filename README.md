@@ -59,7 +59,7 @@ This URL always installs the most recently published plugin release. Changes
 merged to `main` are not available through this URL until the **Build and
 Release** workflow publishes a new release.
 
-The `plugin/easytier.plg` file in the source tree is a release template. Its
+> **WARNING: The `plugin/easytier.plg` file in the source tree is a release template and is NOT installable directly.** Its
 utils-package checksum and EasyTier binary metadata are replaced by the release
 workflow, so the template itself is not an installable release artifact.
 

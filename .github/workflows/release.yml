@@ -119,6 +119,12 @@ jobs:
             -e "s/EASYTIER_ASSET/${EASYTIER_ASSET}/g" \
             plugin/easytier.plg > "easytier-${VERSION}.plg"
           cp "easytier-${VERSION}.plg" easytier.plg
+          # P2 B-05: negative check - ensure no placeholder remains
+          if grep -q "PLACEHOLDER" easytier.plg; then
+            echo "ERROR: placeholder still present in easytier.plg"
+            grep -n "PLACEHOLDER" easytier.plg
+            exit 1
+          fi
           ! grep -q PLACEHOLDER_SHA256 easytier.plg
           ! grep -q EASYTIER_ASSET easytier.plg
           printf '%s  %s\n' "${SHA256}" "${PKG_FILE}" > checksums.txt

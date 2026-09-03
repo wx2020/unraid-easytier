@@ -114,7 +114,7 @@ class System extends \EDACerton\PluginUtils\System
     }
 
     /**
-     * @return array<string>
+     * @return bool
      */
     public static function isRunning(): bool
     {
@@ -138,7 +138,15 @@ class System extends \EDACerton\PluginUtils\System
             return [];
         }
 
-        return Utils::runwrap('/usr/local/sbin/easytier-cli node', false, false);
+        $out = Utils::runwrap('/usr/local/sbin/easytier-cli node', false, false);
+        // P2 S-06: truncate to avoid huge <pre> DoS (200KB)
+        $joined = implode("\n", $out);
+        if (strlen($joined) > 200 * 1024) {
+            $joined = mb_strcut($joined, 0, 200 * 1024);
+            $out = explode("\n", $joined);
+            $out[] = '... truncated (200KB limit)';
+        }
+        return $out;
     }
 
     public static function checkWebgui(Config $config, string $easytier_ipv4, bool $allowRestart): bool
