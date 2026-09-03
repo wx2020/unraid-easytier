@@ -25,6 +25,10 @@ utils:
 		cp "$$file" ../$(PACKAGE_DIR)/"$$file"; \
 	done
 
+	# P1 C-01: sync with build.sh - package Chinese translation
+	@mkdir -p $(PACKAGE_DIR)/usr/local/emhttp/languages/zh_CN
+	@cp translations/zh_CN/EasyTier/easytier.txt $(PACKAGE_DIR)/usr/local/emhttp/languages/zh_CN/easytier.txt
+
 	# Create the package
 	@cd $(BUILD_DIR) && tar --xz -cf ../$(PKG_FILE) $(PKG_VERSION)
 

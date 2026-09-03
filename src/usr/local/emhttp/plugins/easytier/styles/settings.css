@@ -153,6 +153,11 @@ select:focus {
     outline: none;
 }
 
+/* P1 W-01: advanced folding (Unraid's .advancedview checkbox) */
+.advanced { display: none; }
+.advancedview:checked ~ #serverForm .advanced { display: block; }
+.advancedview:checked ~ form .advanced { display: block; }
+
 /* Inline Help */
 blockquote.inline_help {
     font-size: 12px;

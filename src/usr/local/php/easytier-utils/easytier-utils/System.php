@@ -56,6 +56,38 @@ class System extends \EDACerton\PluginUtils\System
             return [];
         }
 
+        // P1 R-05: try JSON first (if upstream supports --json)
+        $jsonLines = Utils::runwrap('/usr/local/sbin/easytier-cli peer --json 2>/dev/null', false, false);
+        if ($jsonLines !== []) {
+            $json = implode("\n", $jsonLines);
+            $data = json_decode($json, true);
+            if (is_array($data)) {
+                // Support both array and object with 'peers' key
+                $list = $data['peers'] ?? $data;
+                if (is_array($list)) {
+                    $peers = [];
+                    foreach ($list as $item) {
+                        if (is_array($item) && isset($item['virtual_ip'], $item['hostname'])) {
+                            $ip = $item['virtual_ip'] ?? $item['ip'] ?? '';
+                            $hn = $item['hostname'] ?? '';
+                            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && preg_match('/^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$/', $hn)) {
+                                $peers[] = ['virtual_ip' => $ip, 'hostname' => $hn];
+                            }
+                        } elseif (is_array($item) && isset($item['ipv4'], $item['hostname'])) {
+                            $ip = $item['ipv4'];
+                            $hn = $item['hostname'];
+                            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && preg_match('/^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$/', $hn)) {
+                                $peers[] = ['virtual_ip' => $ip, 'hostname' => $hn];
+                            }
+                        }
+                    }
+                    if ($peers !== []) {
+                        return $peers;
+                    }
+                }
+            }
+        }
+
         $lines = Utils::runwrap('/usr/local/sbin/easytier-cli peer', false, false);
         $peers = [];
         foreach ($lines as $line) {
@@ -68,8 +100,15 @@ class System extends \EDACerton\PluginUtils\System
                 filter_var($columns[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) &&
                 strcasecmp($columns[1], 'hostname') !== 0
             ) {
+                // P1 R-05: header auto-detection - skip if header contains non-IP
+                if (strcasecmp($columns[0], 'ipv4') === 0 || strcasecmp($columns[0], 'ip') === 0) {
+                    continue;
+                }
                 $peers[] = ['virtual_ip' => $columns[0], 'hostname' => $columns[1]];
             }
+        }
+        if ($peers === [] && $lines !== []) {
+            Utils::logwrap("getPeers: no peers parsed, raw lines: " . implode('; ', array_slice($lines, 0, 3)), true);
         }
         return $peers;
     }
@@ -271,6 +310,12 @@ class System extends \EDACerton\PluginUtils\System
             if (!empty($config->Proxy)) {
                 $params[] = '--socks5';
                 $params[] = $config->Proxy;
+            }
+
+            if (!empty($config->InstanceId) && $config->InstanceId !== 0) {
+                // P1 C-02: implement --instance-id (was defined but unused)
+                $params[] = '--instance-id';
+                $params[] = (string)$config->InstanceId;
             }
 
             if (!empty($config->RpcPort)) {

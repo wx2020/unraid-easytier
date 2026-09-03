@@ -13,10 +13,20 @@ network_is_ready() {
     return 0
   fi
 
-  # A host may intentionally have no default route. A global address on a
-  # non-loopback, non-EasyTier interface is enough to start and reconnect.
-  ip -o addr show scope global 2>/dev/null |
-    awk '$2 != "lo" && $2 != "easytier0" { found=1 } END { exit found ? 0 : 1 }'
+  # P1 R-04: more robust check - route get and link up state
+  if ip route get 1.1.1.1 2>/dev/null | grep -q ' dev '; then
+    return 0
+  fi
+
+  # Require interface to be UP and have global address
+  if command -v ip >/dev/null 2>&1; then
+    # Check for any UP non-lo/easytier interface with global address
+    ip -o link show up 2>/dev/null | grep -q '^[0-9]' || return 1
+    ip -o addr show scope global up 2>/dev/null |
+      awk '$2 != "lo" && $2 != "easytier0" { found=1 } END { exit found ? 0 : 1 }'
+    return $?
+  fi
+  return 1
 }
 
 wait_for_network() {
@@ -26,7 +36,8 @@ wait_for_network() {
 
   while ! network_is_ready; do
     if [ "$elapsed" -ge "$network_timeout" ]; then
-      log "Network readiness wait timed out; starting EasyTier and allowing reconnect."
+      # P1 R-03: explicit WARNING for watcher to shorten retry
+      log "WARNING: Network readiness wait timed out after ${elapsed}s; starting EasyTier and allowing reconnect."
       return 0
     fi
 
@@ -38,6 +49,9 @@ wait_for_network() {
 }
 
 start_easytier() {
+  # P1 R-08: flock at rc entry to serialize start/stop
+  exec 9>/var/lock/easytier-rc.lock 2>/dev/null || exec 9>/tmp/easytier-rc.lock
+  flock -n 9 2>/dev/null || { log "Another rc.easytier operation in progress, aborting."; return 1; }
   if ! /usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/easytier-core" 1> /dev/null 2> /dev/null ; then
 
     /usr/local/php/easytier-utils/pre-startup.php

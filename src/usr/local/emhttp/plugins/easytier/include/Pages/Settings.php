@@ -172,9 +172,16 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
 
     <dl>
         <dt><?= translate('SOCKS5 Listen Port') ?></dt>
-        <dd><input type="number" min="1" max="65535" name="PROXY"
+        <dd><input type="number" min="1" max="65535" name="SOCKS5_PORT"
                    value="<?= htmlspecialchars($config->Proxy) ?>" placeholder="1080"></dd>
     </dl>
+
+    <dl>
+        <dt><?= translate('Instance ID') ?></dt>
+        <dd><input type="number" min="0" max="255" name="INSTANCE_ID"
+                   value="<?= htmlspecialchars((string)$config->InstanceId) ?>" placeholder="0"></dd>
+    </dl>
+    <blockquote class='inline_help'><?= translate('Instance ID for this node') ?></blockquote>
 
     <dl>
         <dt><?= translate('Config Directory') ?></dt>

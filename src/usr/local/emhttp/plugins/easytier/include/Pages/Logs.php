@@ -33,23 +33,36 @@ $lines = intval($_GET['lines'] ?? 100);
 if ($lines < 10) $lines = 10;
 if ($lines > 1000) $lines = 1000;
 
-// Read log file
+// P1 R-06: tail-based reading with size guard
 $log_content = '';
 
 if (file_exists($log_file)) {
-    // Read last N lines from log file
-    $file = new \SplFileObject($log_file, 'r');
-    $file->seek(PHP_INT_MAX);
-    $total_lines = $file->key();
-
-    $start_line = max(0, $total_lines - $lines);
-    $file->seek($start_line);
-
-    $log_lines = [];
-    while (!$file->eof()) {
-        $log_lines[] = $file->fgets();
+    $maxSize = 5 * 1024 * 1024;
+    $size = filesize($log_file);
+    if ($size !== false && $size > $maxSize) {
+        $log_content = '# ' . translate('Log file too large, please download') . " ({$size} bytes, >5MB)\n# " . translate('Use Download button to get full log.');
+    } else {
+        // Use tail for efficient last N lines, fallback to SplFileObject
+        $escapedFile = escapeshellarg($log_file);
+        $escapedLines = (int)$lines;
+        $output = [];
+        $ret = 0;
+        @exec("tail -n {$escapedLines} {$escapedFile} 2>&1", $output, $ret);
+        if ($ret === 0 && $output !== []) {
+            $log_content = implode("\n", $output);
+        } else {
+            $file = new \SplFileObject($log_file, 'r');
+            $file->seek(PHP_INT_MAX);
+            $total_lines = $file->key();
+            $start_line = max(0, $total_lines - $lines);
+            $file->seek($start_line);
+            $log_lines = [];
+            while (!$file->eof()) {
+                $log_lines[] = $file->fgets();
+            }
+            $log_content = implode('', array_slice($log_lines, 0, -1));
+        }
     }
-    $log_content = implode('', array_slice($log_lines, 0, -1));
 } else {
     $log_content = '# ' . translate('Log file does not exist') . ": {$log_file}\n# " . translate('Logs will appear here once EasyTier is running.');
 }
