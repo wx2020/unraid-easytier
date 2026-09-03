@@ -40,6 +40,14 @@ function logMessage(string $message): void
 
 function isEasytierRunning(): bool
 {
+    // P2 S-08: unify with System::isRunning() logic (pgrep --ns)
+    if (class_exists(System::class) && method_exists(System::class, 'isRunning')) {
+        try {
+            return System::isRunning();
+        } catch (\Throwable $e) {
+            // fallback to direct pgrep
+        }
+    }
     $output = shell_exec('/usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/easytier-core" 2>/dev/null');
     return !empty($output);
 }

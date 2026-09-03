@@ -253,7 +253,19 @@ const easytierI18n = <?= json_encode([
     'unknownError' => translate('Unknown error'),
     'error' => translate('Error:'),
     'resetConfirm' => translate('Are you sure you want to reset to the last saved version?'),
+    'invalidServer' => translate('Invalid Config Server Address'),
+    'invalidServerFormat' => translate('Please check Config Server Address format'),
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
+
+function isValidServerAddress(addr) {
+    addr = (addr||'').trim();
+    if (!addr) return true; // empty is allowed (means not using config server)
+    if (/^[A-Za-z0-9][A-Za-z0-9_-]{1,64}$/.test(addr)) return true;
+    const m = addr.match(/^(udp|tcp|ws|wss):\/\/(?:\[[0-9A-Fa-f:.]+\]|[A-Za-z0-9][A-Za-z0-9.-]*):([0-9]{1,5})\/[^\/\?#\s]+$/i);
+    if (!m) return false;
+    const p = parseInt(m[2],10);
+    return p>=1 && p<=65535;
+}
 
 function switchTab(tabId) {
     const url = new URL(window.location);
@@ -262,6 +274,12 @@ function switchTab(tabId) {
 }
 
 function applyServerSettings() {
+    // P2 W-05: frontend validation for config server
+    const sv = document.querySelector('input[name="SERVER_ADDRESS"]')?.value || '';
+    if (sv.trim() !== '' && !isValidServerAddress(sv)) {
+        alert(easytierI18n.invalidServer + ': ' + easytierI18n.invalidServerFormat);
+        return;
+    }
     document.getElementById('serverForm').submit();
 }
 

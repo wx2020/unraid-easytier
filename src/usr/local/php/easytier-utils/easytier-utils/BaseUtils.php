@@ -54,7 +54,19 @@ class Utils
             $this->logmsg("Running: {$command}");
         }
 
-        exec($command . " 2>&1", $output, $return_var);
+        // P2 C-07: timeout and output limit to avoid PHP-FPM hang on easytier-cli
+        $hasTimeout = is_executable('/usr/bin/timeout') || is_executable('/bin/timeout');
+        $wrapped = $command . " 2>&1";
+        if ($hasTimeout) {
+            $wrapped = "timeout 5 " . $wrapped;
+        }
+        exec($wrapped, $output, $return_var);
+
+        // Limit output to 2000 lines to prevent OOM
+        if (count($output) > 2000) {
+            $output = array_slice($output, 0, 2000);
+            $output[] = '... truncated (2000 lines limit)';
+        }
 
         if ($return_var !== 0 && $show) {
             $this->logmsg("Command failed with return code: {$return_var}");

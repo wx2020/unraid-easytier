@@ -41,15 +41,25 @@ class Config
     public string $Hostname;       // Hostname for this instance
     public string $ConfigDir;      // Directory for --config-dir (e.g., '/boot/config/plugins/easytier')
 
+    private static ?array $iniCache = null;
+    private static int $iniCacheTime = 0;
+
     public function __construct()
     {
         $config_file = '/boot/config/plugins/easytier/easytier.cfg';
 
-        // Load configuration file
-        if (file_exists($config_file)) {
-            $saved_config = parse_ini_file($config_file) ?: array();
+        // P2 R-09: 1s cache to reduce IO in watcher (every 10s)
+        $now = time();
+        if (self::$iniCache !== null && ($now - self::$iniCacheTime) < 1 && file_exists($config_file)) {
+            $saved_config = self::$iniCache;
         } else {
-            $saved_config = array();
+            if (file_exists($config_file)) {
+                $saved_config = parse_ini_file($config_file) ?: array();
+            } else {
+                $saved_config = array();
+            }
+            self::$iniCache = $saved_config;
+            self::$iniCacheTime = $now;
         }
 
         $this->IncludeInterface = self::parseBool($saved_config["INCLUDE_INTERFACE"] ?? "1");
@@ -88,8 +98,8 @@ class Config
             return false;
         }
 
-        // EasyTier also accepts a username and uses the official server.
-        if (preg_match('/^[A-Za-z0-9][A-Za-z0-9_.@-]{0,127}$/', $address) === 1) {
+        // P2 C-05: tighten username (was too loose with @/.) to 1-64 alnum/_/-
+        if (preg_match('/^[A-Za-z0-9][A-Za-z0-9_-]{1,64}$/', $address) === 1) {
             return true;
         }
 
@@ -126,7 +136,8 @@ class Config
             return false;
         }
 
-        return $this->Hostname === '' || preg_match('/\s/', $this->Hostname) !== 1;
+        // P2 C-06: reuse hostname regex instead of just whitespace check
+        return $this->Hostname === '' || preg_match('/^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$/', $this->Hostname) === 1;
     }
 
     private static function isValidListener(string $listener): bool

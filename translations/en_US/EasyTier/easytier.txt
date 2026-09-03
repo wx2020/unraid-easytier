@@ -92,3 +92,7 @@ Error clearing log=
 Logs will appear here once EasyTier is running=
 Log file too large, please download=
 Use Download button to get full log=
+Virtual IP=
+Peers=
+Invalid Config Server Address=
+Please check Config Server Address format=

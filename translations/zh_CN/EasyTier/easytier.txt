@@ -92,3 +92,7 @@ Error clearing log=清空日志时出错：
 Logs will appear here once EasyTier is running=EasyTier 运行后将显示日志。
 Log file too large, please download=日志文件过大，请下载查看
 Use Download button to get full log=请使用“下载”按钮获取完整日志
+Virtual IP=虚拟 IP
+Peers=对等节点数
+Invalid Config Server Address=配置服务器地址无效
+Please check Config Server Address format=请检查配置服务器地址格式（protocol://host:port/username）
