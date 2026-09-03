@@ -108,10 +108,24 @@ if [ -L "/etc/rc.d/rc.easytier" ]; then
     rm -f /etc/rc.d/rc.easytier
 fi
 
-# Extract EasyTier binary
+# Extract EasyTier binary with integrity and ZipSlip protection (P1 B-03)
 mkdir -p /usr/local/emhttp/plugins/easytier/bin
 EASYTIER_ARCHIVE="/boot/config/plugins/easytier/EASYTIER_ASSET"
-unzip -o "$EASYTIER_ARCHIVE" -d /usr/local/emhttp/plugins/easytier/bin
+unzip -t "$EASYTIER_ARCHIVE" >/dev/null || { echo "EasyTier archive integrity check failed"; exit 1; }
+TMP_EXTRACT=$(mktemp -d)
+unzip -o "$EASYTIER_ARCHIVE" -d "$TMP_EXTRACT"
+# Whitelist expected binaries to prevent ZipSlip
+EASYTIER_CORE_TMP=$(find "$TMP_EXTRACT" -type f -name easytier-core | head -n 1)
+EASYTIER_CLI_TMP=$(find "$TMP_EXTRACT" -type f -name easytier-cli | head -n 1)
+if [ -z "$EASYTIER_CORE_TMP" ] || [ -z "$EASYTIER_CLI_TMP" ]; then
+    echo "EasyTier binaries not found in archive (whitelist check failed)"
+    rm -rf "$TMP_EXTRACT"
+    exit 1
+fi
+cp -a "$EASYTIER_CORE_TMP" /usr/local/emhttp/plugins/easytier/bin/
+cp -a "$EASYTIER_CLI_TMP" /usr/local/emhttp/plugins/easytier/bin/
+chmod 0755 /usr/local/emhttp/plugins/easytier/bin/easytier-core /usr/local/emhttp/plugins/easytier/bin/easytier-cli
+rm -rf "$TMP_EXTRACT"
 
 # Extract utils package (PHP files, styles, etc.)
 UTILS_PKG="/boot/config/plugins/easytier/unraid-easytier-utils-2026.08.06.0002-noarch-1.txz"

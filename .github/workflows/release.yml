@@ -65,7 +65,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # P1 B-02: filter prerelease/draft, verify asset size and integrity
           RELEASE_JSON="$(gh api repos/EasyTier/EasyTier/releases/latest)"
+          # Ensure latest is not prerelease/draft
+          if jq -e 'select(.prerelease==true or .draft==true)' <<<"${RELEASE_JSON}" >/dev/null; then
+            echo "Latest release is prerelease/draft, falling back to releases list"
+            RELEASE_JSON="$(gh api 'repos/EasyTier/EasyTier/releases?per_page=20' | jq '[.[] | select(.prerelease==false and .draft==false)][0]')"
+          fi
           ASSET_NAME="$(jq -r '
             .assets[]
             | select(.name | test("^easytier-linux-x86_64-v[^/]+\\.zip$"))
@@ -77,12 +83,21 @@ jobs:
           API_DIGEST="$(jq -r --arg name "${ASSET_NAME}" '
             .assets[] | select(.name == $name) | .digest
           ' <<<"${RELEASE_JSON}")"
+          ASSET_SIZE="$(jq -r --arg name "${ASSET_NAME}" '
+            .assets[] | select(.name == $name) | .size
+          ' <<<"${RELEASE_JSON}")"
           test -n "${ASSET_NAME}"
           test "${ASSET_URL}" != "null"
           [[ "${API_DIGEST}" == sha256:* ]]
+          test "${ASSET_SIZE}" != "null" && test "${ASSET_SIZE}" -gt 0
           curl --fail --location --retry 3 --output "${ASSET_NAME}" "${ASSET_URL}"
+          # Verify download size matches API
+          DOWNLOADED_SIZE="$(stat -c%s "${ASSET_NAME}")"
+          test "${DOWNLOADED_SIZE}" -eq "${ASSET_SIZE}"
           ASSET_SHA256="$(sha256sum "${ASSET_NAME}" | awk '{print $1}')"
           test "${ASSET_SHA256}" = "${API_DIGEST#sha256:}"
+          # Verify zip integrity (P1 B-02/B-03)
+          unzip -t "${ASSET_NAME}" >/dev/null
           echo "EASYTIER_ASSET=${ASSET_NAME}" >> "$GITHUB_ENV"
           echo "EASYTIER_ASSET_URL=${ASSET_URL}" >> "$GITHUB_ENV"
           echo "EASYTIER_ASSET_SHA256=${ASSET_SHA256}" >> "$GITHUB_ENV"

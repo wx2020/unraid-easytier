@@ -32,6 +32,33 @@ try {
     $file_path = $_POST['file_path'] ?? '';
     $config_content = $_POST['config_content'] ?? '';
 
+    // P1 S-07: limit size to protect /boot (FAT, small)
+    if (strlen($config_content) > 256 * 1024) {
+        throw new \Exception(translate('Configuration file too large'));
+    }
+    if (str_contains($config_content, "\0")) {
+        throw new \Exception(translate('Invalid file content'));
+    }
+    // Basic TOML validation: non-empty, non-comment lines should contain '=' or '[' or be empty
+    $hasInvalid = false;
+    foreach (explode("\n", $config_content) as $line) {
+        $t = trim($line);
+        if ($t === '' || str_starts_with($t, '#') || str_starts_with($t, ';')) {
+            continue;
+        }
+        if (!str_contains($t, '=') && !str_contains($t, '[')) {
+            $hasInvalid = true;
+            break;
+        }
+        if (strlen($t) > 4096) {
+            $hasInvalid = true;
+            break;
+        }
+    }
+    if ($hasInvalid) {
+        throw new \Exception(translate('Invalid TOML content'));
+    }
+
     // Validate inputs
     if (empty($tab) || empty($file_path)) {
         throw new \Exception(translate('Missing required parameters'));

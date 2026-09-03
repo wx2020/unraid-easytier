@@ -63,7 +63,8 @@ class Config
         $this->ServerAddress  = $saved_config["SERVER_ADDRESS"] ?? "";
         $this->Protocol       = $saved_config["PROTOCOL"] ?? "udp";
         $this->Listener       = $saved_config["LISTENER"] ?? "0.0.0.0:11010";
-        $this->Proxy          = $saved_config["PROXY"] ?? "";
+        // P1 C-02: PROXY is actually SOCKS5 port; support SOCKS5_PORT alias for rename, fallback to PROXY
+        $this->Proxy          = $saved_config["SOCKS5_PORT"] ?? $saved_config["PROXY"] ?? "";
         $this->InstanceId     = intval($saved_config["INSTANCE_ID"] ?? "0");
         $this->RpcPort        = $saved_config["RPC_PORT"] ?? "15888";
         $this->Hostname       = $saved_config["HOSTNAME"] ?? (gethostname() ?: 'unraid');
