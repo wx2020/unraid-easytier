@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 
 /*
@@ -27,7 +26,7 @@ use EasyTier\System;
 use EasyTier\Utils;
 
 // P1 S-04: CSRF protection (consistent with save_config_file/clear_log/restart_service)
-requireCsrfToken($_POST['csrf_token'] ?? null);
+requireCsrfToken($_POST['csrf_token'] ?? $_REQUEST['csrf_token'] ?? null);
 
 $config = new Config();
 

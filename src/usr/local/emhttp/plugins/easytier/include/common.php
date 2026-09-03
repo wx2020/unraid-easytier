@@ -59,6 +59,19 @@ function translate(string $text): string
 
 function requireCsrfToken(?string $token): void
 {
+    // Unraid filters csrf_token from $_POST for /plugins/*, fallback to $_REQUEST/php://input
+    if ($token === null || $token === '') {
+        $token = $_REQUEST['csrf_token'] ?? null;
+    }
+    if ($token === null || $token === '') {
+        $raw = file_get_contents('php://input');
+        if (is_string($raw) && $raw !== '') {
+            parse_str($raw, $parsed);
+            if (is_array($parsed) && isset($parsed['csrf_token'])) {
+                $token = $parsed['csrf_token'];
+            }
+        }
+    }
     $varFile = '/var/local/emhttp/var.ini';
     $server = file_exists($varFile) ? parse_ini_file($varFile) : false;
     $expected = is_array($server) ? ($server['csrf_token'] ?? '') : '';

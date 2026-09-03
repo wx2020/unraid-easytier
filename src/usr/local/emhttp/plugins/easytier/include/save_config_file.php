@@ -25,7 +25,7 @@ header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/common.php';
 
 try {
-    requireCsrfToken($_POST['csrf_token'] ?? null);
+    requireCsrfToken($_POST['csrf_token'] ?? $_REQUEST['csrf_token'] ?? null);
 
     // Get POST data
     $tab = $_POST['tab'] ?? '';
