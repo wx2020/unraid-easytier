@@ -149,8 +149,13 @@ ln -sf "$EASYTIER_BIN_DIR/easytier-cli" /usr/local/sbin/easytier-cli
 touch /var/log/easytier.log
 chmod 0644 /var/log/easytier.log
 
-# Create config directory if it doesn't exist
-mkdir -p /boot/config/plugins/easytier
+# Create config directory with secure permissions (P0 S-03)
+mkdir -p /boot/config/plugins/easytier/state
+chmod 0700 /boot/config/plugins/easytier 2>/dev/null || true
+chmod 0700 /boot/config/plugins/easytier/state 2>/dev/null || true
+if [ -f /boot/config/plugins/easytier/easytier.cfg ]; then chmod 0600 /boot/config/plugins/easytier/easytier.cfg 2>/dev/null || true; fi
+if [ -f /boot/config/plugins/easytier/easytier.toml ]; then chmod 0600 /boot/config/plugins/easytier/easytier.toml 2>/dev/null || true; fi
+if [ -f /usr/local/emhttp/plugins/easytier/custom-params.sh ]; then chmod 0600 /usr/local/emhttp/plugins/easytier/custom-params.sh 2>/dev/null || true; fi
 
 # Plugin manifests are processed during Unraid system startup. Start EasyTier
 # here after the package and its rc script have been installed; this does not

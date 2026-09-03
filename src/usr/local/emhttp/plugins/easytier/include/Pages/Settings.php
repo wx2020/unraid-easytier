@@ -175,6 +175,14 @@ $config_content = file_exists($config_file_path) ? file_get_contents($config_fil
         <dd><input type="number" min="1" max="65535" name="PROXY"
                    value="<?= htmlspecialchars($config->Proxy) ?>" placeholder="1080"></dd>
     </dl>
+
+    <dl>
+        <dt><?= translate('Config Directory') ?></dt>
+        <dd>
+            <input type="text" name="CONFIG_DIR" value="<?= htmlspecialchars($config->ConfigDir ?? Config::DEFAULT_CONFIG_DIR) ?>" placeholder="<?= htmlspecialchars(Config::DEFAULT_CONFIG_DIR) ?>">
+        </dd>
+    </dl>
+    <blockquote class='inline_help'><?= translate('Directory for EasyTier --config-dir Default') ?> <code><?= htmlspecialchars(Config::DEFAULT_CONFIG_DIR) ?></code></blockquote>
 </div>
 
 <dl>

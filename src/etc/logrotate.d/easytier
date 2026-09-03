@@ -5,8 +5,20 @@
     notifempty
     compress
     delaycompress
+    copytruncate
     sharedscripts
     postrotate
+        # copytruncate avoids needing HUP; keep pkill as fallback for older configs
         /usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/easytier-core" 1> /dev/null 2> /dev/null && /usr/bin/killall -HUP --ns $$ easytier-core 2> /dev/null || true
     endscript
+}
+
+/var/log/easytier-utils.log {
+    daily
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
 }

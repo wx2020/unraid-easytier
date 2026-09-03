@@ -22,6 +22,7 @@ namespace EasyTier;
 class Config
 {
     public const CORE_CONFIG_FILE = '/boot/config/plugins/easytier/easytier.toml';
+    public const DEFAULT_CONFIG_DIR = '/boot/config/plugins/easytier';
 
     public bool $IncludeInterface;
     public bool $Enable;
@@ -38,6 +39,7 @@ class Config
     public int $InstanceId;        // Instance ID (default: hostname based)
     public string $RpcPort;        // RPC port for management
     public string $Hostname;       // Hostname for this instance
+    public string $ConfigDir;      // Directory for --config-dir (e.g., '/boot/config/plugins/easytier')
 
     public function __construct()
     {
@@ -65,6 +67,12 @@ class Config
         $this->InstanceId     = intval($saved_config["INSTANCE_ID"] ?? "0");
         $this->RpcPort        = $saved_config["RPC_PORT"] ?? "15888";
         $this->Hostname       = $saved_config["HOSTNAME"] ?? (gethostname() ?: 'unraid');
+        $rawConfigDir         = $saved_config["CONFIG_DIR"] ?? self::DEFAULT_CONFIG_DIR;
+        // Backward compatibility: user requested '/boot/config/plugin/easytier' (singular) -> normalize to plural
+        if (trim((string)$rawConfigDir) === '/boot/config/plugin/easytier') {
+            $rawConfigDir = self::DEFAULT_CONFIG_DIR;
+        }
+        $this->ConfigDir      = trim((string)$rawConfigDir) !== '' ? trim((string)$rawConfigDir) : self::DEFAULT_CONFIG_DIR;
     }
 
     private static function parseBool(mixed $value): bool
@@ -143,5 +151,26 @@ class Config
         return is_int($port) || is_string($port)
             ? preg_match('/^[0-9]{1,5}$/', (string)$port) === 1 && (int)$port >= 1 && (int)$port <= 65535
             : false;
+    }
+
+    public static function isValidConfigDir(string $path): bool
+    {
+        $path = trim($path);
+        if ($path === '') {
+            return false;
+        }
+        // Must be absolute path, no null bytes, no traversal
+        if ($path[0] !== '/' || str_contains($path, "\0") || str_contains($path, '..')) {
+            return false;
+        }
+        // Allow only safe characters: alphanum, / . _ -
+        if (preg_match('~^/[A-Za-z0-9/_\-.]+$~', $path) !== 1) {
+            return false;
+        }
+        // No double slashes and no trailing slash (except root)
+        if (str_contains($path, '//') || (strlen($path) > 1 && str_ends_with($path, '/'))) {
+            return false;
+        }
+        return true;
     }
 }

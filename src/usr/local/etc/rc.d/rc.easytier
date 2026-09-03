@@ -48,22 +48,47 @@ start_easytier() {
 
     wait_for_network
 
-    if [ -f /usr/local/emhttp/plugins/easytier/custom-params.sh ]; then
-        . /usr/local/emhttp/plugins/easytier/custom-params.sh
-    else
-        EASYTIER_CUSTOM_PARAMS=""
+    # P0 S-01: eval-free argument loading. custom-params.sh is now one arg per line.
+    ARGS_FILE="/usr/local/emhttp/plugins/easytier/custom-params.sh"
+    LEGACY_ARGS="/boot/config/plugins/easytier/args.txt"
+    if [ ! -f "$ARGS_FILE" ] && [ -f "$LEGACY_ARGS" ]; then
+        ARGS_FILE="$LEGACY_ARGS"
     fi
 
-    # Create state directory
+    # Create state directory with secure permissions (P0 S-03)
     mkdir -p /boot/config/plugins/easytier/state
+    chmod 0700 /boot/config/plugins/easytier 2>/dev/null || true
+    chmod 0700 /boot/config/plugins/easytier/state 2>/dev/null || true
 
-    # Build EasyTier start command
-    # Note: Adjust these parameters based on EasyTier's actual CLI
     log "Starting EasyTier."
 
-    # Start EasyTier in background with logging
-    eval "exec /usr/local/sbin/easytier-core $EASYTIER_CUSTOM_PARAMS" \
-      >> /var/log/easytier.log 2>&1 &
+    # Build argument list without eval (P0 S-01/S-02)
+    set -- --dhcp --dev-name easytier0
+    # Load persisted args if available; support both new line-per-arg format and legacy shell-var format
+    if [ -f "$ARGS_FILE" ]; then
+        # Detect legacy format: file contains EASYTIER_CUSTOM_PARAMS=
+        if grep -q "EASYTIER_CUSTOM_PARAMS" "$ARGS_FILE" 2>/dev/null; then
+            # Legacy: source and eval single outer layer into positional params
+            # shellcheck disable=SC1090
+            . "$ARGS_FILE"
+            # shellcheck disable=SC2086
+            eval "set -- $EASYTIER_CUSTOM_PARAMS"
+            # Re-add base args that are now in $@ already? Legacy file already contains base, so reset
+            # Keep $@ as is (already includes --dhcp etc from file)
+            :
+        else
+            # New format: one arg per line
+            set --
+            while IFS= read -r _arg || [ -n "$_arg" ]; do
+                [ -z "$_arg" ] && continue
+                set -- "$@" "$_arg"
+            done < "$ARGS_FILE"
+        fi
+    fi
+
+    # Start EasyTier in background with logging (eval-free exec)
+    # shellcheck disable=SC2086
+    /usr/local/sbin/easytier-core "$@" >> /var/log/easytier.log 2>&1 &
 
     # Start the watcher process
     if ! /usr/bin/pgrep --ns $$ --euid root -f "easytier-watcher.php" >/dev/null 2>&1; then

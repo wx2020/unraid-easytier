@@ -58,8 +58,9 @@ try {
         throw new \Exception(translate('Failed to write to file'));
     }
 
-    // Set proper permissions
-    chmod($file_path, 0644);
+    // P0 S-03: restrict to owner only (contains secrets)
+    chmod($file_path, 0600);
+    @chmod(dirname($file_path), 0700);
 
     // Log the action
     $log_entry = sprintf(
