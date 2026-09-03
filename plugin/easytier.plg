@@ -183,6 +183,8 @@ UTILS_PKG="/boot/config/plugins/easytier/unraid-easytier-utils-2026.08.06.0002-n
 if [ -n "$UTILS_PKG" ]; then
     find /boot/config/plugins/easytier -name '*.txz' ! -name "$(basename "$UTILS_PKG")" -type f -delete 2>/dev/null || true
 fi
+# Prevent duplicate plugin entries: remove versioned plg copies, keep only canonical easytier.plg
+rm -f /boot/config/plugins/easytier-*.plg /var/log/plugins/easytier-*.plg 2>/dev/null || true
 
 echo ""
 echo "----------------------------------------------------"
